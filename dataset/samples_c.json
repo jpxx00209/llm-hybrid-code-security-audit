@@ -1,0 +1,204 @@
+{
+  "C": {
+    "SAMPLE_001": {
+      "vulnerable": "#include <string.h>\nvoid copy_input(char *input) {\n    char buffer[64];\n    strcpy(buffer, input);  // VULN: no bounds check\n}\n",
+      "fixed": "#include <string.h>\nvoid copy_input(char *input) {\n    char buffer[64];\n    if (input != NULL) {\n        strncpy(buffer, input, sizeof(buffer) - 1);\n        buffer[sizeof(buffer) - 1] = '\\0';\n    }\n}\n"
+    },
+    "SAMPLE_002": {
+      "vulnerable": "#include <stdio.h>\nvoid process(int idx) {\n    int arr[10];\n    arr[idx] = 42;  // VULN: idx unchecked\n}\n",
+      "fixed": "#include <stdio.h>\nvoid process(int idx) {\n    int arr[10];\n    if (idx >= 0 && idx < 10) {\n        arr[idx] = 42;\n    } else {\n        fprintf(stderr, \"Index out of bounds\\n\");\n    }\n}\n"
+    },
+    "SAMPLE_003": {
+      "vulnerable": "#include <stdlib.h>\n#include <string.h>\nvoid heap_copy(char *src) {\n    char *dst = malloc(10);\n    strcpy(dst, src);  // VULN: dst may be too small\n    free(dst);\n}\n",
+      "fixed": "#include <stdlib.h>\n#include <string.h>\nvoid heap_copy(char *src) {\n    size_t len = strlen(src) + 1;\n    char *dst = malloc(len);\n    if (dst != NULL) {\n        strncpy(dst, src, len - 1);\n        dst[len - 1] = '\\0';\n        free(dst);\n    }\n}\n"
+    },
+    "SAMPLE_004": {
+      "vulnerable": "#include <stdio.h>\nint alloc_size(int n) {\n    return n * sizeof(int);  // VULN: integer overflow possible\n}\n",
+      "fixed": "#include <stdio.h>\n#include <limits.h>\nint alloc_size(int n) {\n    if (n > 0 && n > INT_MAX / sizeof(int)) {\n        fprintf(stderr, \"Integer overflow detected\\n\");\n        return -1;\n    }\n    return n * sizeof(int);\n}\n"
+    },
+    "SAMPLE_005": {
+      "vulnerable": "#include <stdio.h>\nunsigned int subtract(unsigned int a, unsigned int b) {\n    return a - b;  // VULN: underflow if b > a\n}\n",
+      "fixed": "#include <stdio.h>\nunsigned int subtract(unsigned int a, unsigned int b) {\n    if (b > a) {\n        fprintf(stderr, \"Underflow detected\\n\");\n        return 0;\n    }\n    return a - b;\n}\n"
+    },
+    "SAMPLE_006": {
+      "vulnerable": "#include <stdlib.h>\nvoid cleanup(char *p) {\n    free(p);\n    free(p);  // VULN: double free\n}\n",
+      "fixed": "#include <stdlib.h>\nvoid cleanup(char *p) {\n    if (p != NULL) {\n        free(p);\n        p = NULL;\n    }\n}\n"
+    },
+    "SAMPLE_007": {
+      "vulnerable": "#include <stdlib.h>\n#include <stdio.h>\nvoid uaf_example() {\n    char *msg = malloc(20);\n    free(msg);\n    printf(\"%s\", msg);  // VULN: use after free\n}\n",
+      "fixed": "#include <stdlib.h>\n#include <stdio.h>\nvoid uaf_example() {\n    char *msg = malloc(20);\n    if (msg != NULL) {\n        snprintf(msg, 20, \"Hello\");\n        printf(\"%s\", msg);\n        free(msg);\n        msg = NULL;\n    }\n}\n"
+    },
+    "SAMPLE_008": {
+      "vulnerable": "#include <stdio.h>\nvoid print_len(char *s) {\n    printf(\"%d\", strlen(s));  // VULN: s may be NULL\n}\n",
+      "fixed": "#include <stdio.h>\n#include <string.h>\nvoid print_len(char *s) {\n    if (s != NULL) {\n        printf(\"%zu\", strlen(s));\n    } else {\n        printf(\"0\");\n    }\n}\n"
+    },
+    "SAMPLE_009": {
+      "vulnerable": "#include <stdio.h>\nint sum_array(int *arr, int n) {\n    int sum;\n    for (int i = 0; i < n; i++) {\n        sum += arr[i];  // VULN: sum uninitialized\n    }\n    return sum;\n}\n",
+      "fixed": "#include <stdio.h>\nint sum_array(int *arr, int n) {\n    int sum = 0;\n    if (arr == NULL || n <= 0) return 0;\n    for (int i = 0; i < n; i++) {\n        sum += arr[i];\n    }\n    return sum;\n}\n"
+    },
+    "SAMPLE_010": {
+      "vulnerable": "#include <stdio.h>\nvoid log_msg(char *msg) {\n    printf(msg);  // VULN: format string injection\n}\n",
+      "fixed": "#include <stdio.h>\nvoid log_msg(char *msg) {\n    if (msg != NULL) {\n        printf(\"%s\", msg);\n    }\n}\n"
+    },
+    "SAMPLE_011": {
+      "vulnerable": "#include <stdlib.h>\nvoid run_cmd(char *user_input) {\n    system(user_input);  // VULN: command injection\n}\n",
+      "fixed": "#include <stdlib.h>\n#include <string.h>\nvoid run_cmd(char *user_input) {\n    if (user_input == NULL) return;\n    if (strpbrk(user_input, \";&|\")) {\n        fprintf(stderr, \"Invalid characters\\n\");\n        return;\n    }\n    system(user_input);\n}\n"
+    },
+    "SAMPLE_012": {
+      "vulnerable": "#include <stdio.h>\nFILE* open_file(char *filename) {\n    return fopen(filename, \"r\");  // VULN: path traversal\n}\n",
+      "fixed": "#include <stdio.h>\n#include <string.h>\nFILE* open_file(char *filename) {\n    if (filename == NULL || strstr(filename, \"..\") != NULL) {\n        fprintf(stderr, \"Invalid path\\n\");\n        return NULL;\n    }\n    return fopen(filename, \"r\");\n}\n"
+    },
+    "SAMPLE_013": {
+      "vulnerable": "#include <stdio.h>\nvoid write_data(int len) {\n    char buf[100];\n    if (len < 100)\n        memcpy(buf, \"data\", len);  // VULN: len is signed, negative bypasses check\n}\n",
+      "fixed": "#include <stdio.h>\n#include <string.h>\nvoid write_data(int len) {\n    char buf[100];\n    if (len > 0 && len < 100)\n        memcpy(buf, \"data\", len);\n}\n"
+    },
+    "SAMPLE_014": {
+      "vulnerable": "#include <stdio.h>\nvoid set_flag(int idx) {\n    int flags[5] = {0};\n    flags[idx] = 1;  // VULN: idx unchecked\n}\n",
+      "fixed": "#include <stdio.h>\nvoid set_flag(int idx) {\n    int flags[5] = {0};\n    if (idx >= 0 && idx < 5) {\n        flags[idx] = 1;\n    }\n}\n"
+    },
+    "SAMPLE_015": {
+      "vulnerable": "#include <string.h>\nvoid concat(char *a, char *b) {\n    char buf[32];\n    strcat(buf, a);  // VULN: potential overflow\n    strcat(buf, b);\n}\n",
+      "fixed": "#include <string.h>\nvoid concat(char *a, char *b) {\n    char buf[32];\n    buf[0] = '\\0';\n    if (a != NULL)\n        strncat(buf, a, sizeof(buf) - strlen(buf) - 1);\n    if (b != NULL)\n        strncat(buf, b, sizeof(buf) - strlen(buf) - 1);\n}\n"
+    },
+    "SAMPLE_016": {
+      "vulnerable": "// Variant 2\n#include <string.h>\nvoid copy_input(char *input) {\n    char buffer[64];\n    strcpy(buffer, input);  // VULN: no bounds check\n}\n",
+      "fixed": "// Variant 2 (Fixed)\n#include <string.h>\nvoid copy_input(char *input) {\n    char buffer[64];\n    if (input != NULL) {\n        strncpy(buffer, input, sizeof(buffer) - 1);\n        buffer[sizeof(buffer) - 1] = '\\0';\n    }\n}\n"
+    },
+    "SAMPLE_017": {
+      "vulnerable": "// Variant 2\n#include <stdio.h>\nvoid process(int idx) {\n    int arr[10];\n    arr[idx] = 42;  // VULN: idx unchecked\n}\n",
+      "fixed": "// Variant 2 (Fixed)\n#include <stdio.h>\nvoid process(int idx) {\n    int arr[10];\n    if (idx >= 0 && idx < 10) {\n        arr[idx] = 42;\n    } else {\n        fprintf(stderr, \"Index out of bounds\\n\");\n    }\n}\n"
+    },
+    "SAMPLE_018": {
+      "vulnerable": "// Variant 2\n#include <stdlib.h>\n#include <string.h>\nvoid heap_copy(char *src) {\n    char *dst = malloc(10);\n    strcpy(dst, src);  // VULN: dst may be too small\n    free(dst);\n}\n",
+      "fixed": "// Variant 2 (Fixed)\n#include <stdlib.h>\n#include <string.h>\nvoid heap_copy(char *src) {\n    size_t len = strlen(src) + 1;\n    char *dst = malloc(len);\n    if (dst != NULL) {\n        strncpy(dst, src, len - 1);\n        dst[len - 1] = '\\0';\n        free(dst);\n    }\n}\n"
+    },
+    "SAMPLE_019": {
+      "vulnerable": "// Variant 2\n#include <stdio.h>\nint alloc_size(int n) {\n    return n * sizeof(int);  // VULN: integer overflow possible\n}\n",
+      "fixed": "// Variant 2 (Fixed)\n#include <stdio.h>\n#include <limits.h>\nint alloc_size(int n) {\n    if (n > 0 && n > INT_MAX / sizeof(int)) {\n        fprintf(stderr, \"Integer overflow detected\\n\");\n        return -1;\n    }\n    return n * sizeof(int);\n}\n"
+    },
+    "SAMPLE_020": {
+      "vulnerable": "// Variant 2\n#include <stdio.h>\nunsigned int subtract(unsigned int a, unsigned int b) {\n    return a - b;  // VULN: underflow if b > a\n}\n",
+      "fixed": "// Variant 2 (Fixed)\n#include <stdio.h>\nunsigned int subtract(unsigned int a, unsigned int b) {\n    if (b > a) {\n        fprintf(stderr, \"Underflow detected\\n\");\n        return 0;\n    }\n    return a - b;\n}\n"
+    },
+    "SAMPLE_021": {
+      "vulnerable": "// Variant 2\n#include <stdlib.h>\nvoid cleanup(char *p) {\n    free(p);\n    free(p);  // VULN: double free\n}\n",
+      "fixed": "// Variant 2 (Fixed)\n#include <stdlib.h>\nvoid cleanup(char *p) {\n    if (p != NULL) {\n        free(p);\n        p = NULL;\n    }\n}\n"
+    },
+    "SAMPLE_022": {
+      "vulnerable": "// Variant 2\n#include <stdlib.h>\n#include <stdio.h>\nvoid uaf_example() {\n    char *msg = malloc(20);\n    free(msg);\n    printf(\"%s\", msg);  // VULN: use after free\n}\n",
+      "fixed": "// Variant 2 (Fixed)\n#include <stdlib.h>\n#include <stdio.h>\nvoid uaf_example() {\n    char *msg = malloc(20);\n    if (msg != NULL) {\n        snprintf(msg, 20, \"Hello\");\n        printf(\"%s\", msg);\n        free(msg);\n        msg = NULL;\n    }\n}\n"
+    },
+    "SAMPLE_023": {
+      "vulnerable": "// Variant 2\n#include <stdio.h>\nvoid print_len(char *s) {\n    printf(\"%d\", strlen(s));  // VULN: s may be NULL\n}\n",
+      "fixed": "// Variant 2 (Fixed)\n#include <stdio.h>\n#include <string.h>\nvoid print_len(char *s) {\n    if (s != NULL) {\n        printf(\"%zu\", strlen(s));\n    } else {\n        printf(\"0\");\n    }\n}\n"
+    },
+    "SAMPLE_024": {
+      "vulnerable": "// Variant 2\n#include <stdio.h>\nint sum_array(int *arr, int n) {\n    int sum;\n    for (int i = 0; i < n; i++) {\n        sum += arr[i];  // VULN: sum uninitialized\n    }\n    return sum;\n}\n",
+      "fixed": "// Variant 2 (Fixed)\n#include <stdio.h>\nint sum_array(int *arr, int n) {\n    int sum = 0;\n    if (arr == NULL || n <= 0) return 0;\n    for (int i = 0; i < n; i++) {\n        sum += arr[i];\n    }\n    return sum;\n}\n"
+    },
+    "SAMPLE_025": {
+      "vulnerable": "// Variant 2\n#include <stdio.h>\nvoid log_msg(char *msg) {\n    printf(msg);  // VULN: format string injection\n}\n",
+      "fixed": "// Variant 2 (Fixed)\n#include <stdio.h>\nvoid log_msg(char *msg) {\n    if (msg != NULL) {\n        printf(\"%s\", msg);\n    }\n}\n"
+    },
+    "SAMPLE_026": {
+      "vulnerable": "// Variant 2\n#include <stdlib.h>\nvoid run_cmd(char *user_input) {\n    system(user_input);  // VULN: command injection\n}\n",
+      "fixed": "// Variant 2 (Fixed)\n#include <stdlib.h>\n#include <string.h>\nvoid run_cmd(char *user_input) {\n    if (user_input == NULL) return;\n    if (strpbrk(user_input, \";&|\")) {\n        fprintf(stderr, \"Invalid characters\\n\");\n        return;\n    }\n    system(user_input);\n}\n"
+    },
+    "SAMPLE_027": {
+      "vulnerable": "// Variant 2\n#include <stdio.h>\nFILE* open_file(char *filename) {\n    return fopen(filename, \"r\");  // VULN: path traversal\n}\n",
+      "fixed": "// Variant 2 (Fixed)\n#include <stdio.h>\n#include <string.h>\nFILE* open_file(char *filename) {\n    if (filename == NULL || strstr(filename, \"..\") != NULL) {\n        fprintf(stderr, \"Invalid path\\n\");\n        return NULL;\n    }\n    return fopen(filename, \"r\");\n}\n"
+    },
+    "SAMPLE_028": {
+      "vulnerable": "// Variant 2\n#include <stdio.h>\nvoid write_data(int len) {\n    char buf[100];\n    if (len < 100)\n        memcpy(buf, \"data\", len);  // VULN: len is signed, negative bypasses check\n}\n",
+      "fixed": "// Variant 2 (Fixed)\n#include <stdio.h>\n#include <string.h>\nvoid write_data(int len) {\n    char buf[100];\n    if (len > 0 && len < 100)\n        memcpy(buf, \"data\", len);\n}\n"
+    },
+    "SAMPLE_029": {
+      "vulnerable": "// Variant 2\n#include <stdio.h>\nvoid set_flag(int idx) {\n    int flags[5] = {0};\n    flags[idx] = 1;  // VULN: idx unchecked\n}\n",
+      "fixed": "// Variant 2 (Fixed)\n#include <stdio.h>\nvoid set_flag(int idx) {\n    int flags[5] = {0};\n    if (idx >= 0 && idx < 5) {\n        flags[idx] = 1;\n    }\n}\n"
+    },
+    "SAMPLE_030": {
+      "vulnerable": "// Variant 2\n#include <string.h>\nvoid concat(char *a, char *b) {\n    char buf[32];\n    strcat(buf, a);  // VULN: potential overflow\n    strcat(buf, b);\n}\n",
+      "fixed": "// Variant 2 (Fixed)\n#include <string.h>\nvoid concat(char *a, char *b) {\n    char buf[32];\n    buf[0] = '\\0';\n    if (a != NULL)\n        strncat(buf, a, sizeof(buf) - strlen(buf) - 1);\n    if (b != NULL)\n        strncat(buf, b, sizeof(buf) - strlen(buf) - 1);\n}\n"
+    },
+    "SAMPLE_031": {
+      "vulnerable": "// Variant 3\n#include <string.h>\nvoid copy_input(char *input) {\n    char buffer[64];\n    strcpy(buffer, input);  // VULN: no bounds check\n}\n",
+      "fixed": "// Variant 3 (Fixed)\n#include <string.h>\nvoid copy_input(char *input) {\n    char buffer[64];\n    if (input != NULL) {\n        strncpy(buffer, input, sizeof(buffer) - 1);\n        buffer[sizeof(buffer) - 1] = '\\0';\n    }\n}\n"
+    },
+    "SAMPLE_032": {
+      "vulnerable": "// Variant 3\n#include <stdio.h>\nvoid process(int idx) {\n    int arr[10];\n    arr[idx] = 42;  // VULN: idx unchecked\n}\n",
+      "fixed": "// Variant 3 (Fixed)\n#include <stdio.h>\nvoid process(int idx) {\n    int arr[10];\n    if (idx >= 0 && idx < 10) {\n        arr[idx] = 42;\n    } else {\n        fprintf(stderr, \"Index out of bounds\\n\");\n    }\n}\n"
+    },
+    "SAMPLE_033": {
+      "vulnerable": "// Variant 3\n#include <stdlib.h>\n#include <string.h>\nvoid heap_copy(char *src) {\n    char *dst = malloc(10);\n    strcpy(dst, src);  // VULN: dst may be too small\n    free(dst);\n}\n",
+      "fixed": "// Variant 3 (Fixed)\n#include <stdlib.h>\n#include <string.h>\nvoid heap_copy(char *src) {\n    size_t len = strlen(src) + 1;\n    char *dst = malloc(len);\n    if (dst != NULL) {\n        strncpy(dst, src, len - 1);\n        dst[len - 1] = '\\0';\n        free(dst);\n    }\n}\n"
+    },
+    "SAMPLE_034": {
+      "vulnerable": "// Variant 3\n#include <stdio.h>\nint alloc_size(int n) {\n    return n * sizeof(int);  // VULN: integer overflow possible\n}\n",
+      "fixed": "// Variant 3 (Fixed)\n#include <stdio.h>\n#include <limits.h>\nint alloc_size(int n) {\n    if (n > 0 && n > INT_MAX / sizeof(int)) {\n        fprintf(stderr, \"Integer overflow detected\\n\");\n        return -1;\n    }\n    return n * sizeof(int);\n}\n"
+    },
+    "SAMPLE_035": {
+      "vulnerable": "// Variant 3\n#include <stdio.h>\nunsigned int subtract(unsigned int a, unsigned int b) {\n    return a - b;  // VULN: underflow if b > a\n}\n",
+      "fixed": "// Variant 3 (Fixed)\n#include <stdio.h>\nunsigned int subtract(unsigned int a, unsigned int b) {\n    if (b > a) {\n        fprintf(stderr, \"Underflow detected\\n\");\n        return 0;\n    }\n    return a - b;\n}\n"
+    },
+    "SAMPLE_036": {
+      "vulnerable": "// Variant 3\n#include <stdlib.h>\nvoid cleanup(char *p) {\n    free(p);\n    free(p);  // VULN: double free\n}\n",
+      "fixed": "// Variant 3 (Fixed)\n#include <stdlib.h>\nvoid cleanup(char *p) {\n    if (p != NULL) {\n        free(p);\n        p = NULL;\n    }\n}\n"
+    },
+    "SAMPLE_037": {
+      "vulnerable": "// Variant 3\n#include <stdlib.h>\n#include <stdio.h>\nvoid uaf_example() {\n    char *msg = malloc(20);\n    free(msg);\n    printf(\"%s\", msg);  // VULN: use after free\n}\n",
+      "fixed": "// Variant 3 (Fixed)\n#include <stdlib.h>\n#include <stdio.h>\nvoid uaf_example() {\n    char *msg = malloc(20);\n    if (msg != NULL) {\n        snprintf(msg, 20, \"Hello\");\n        printf(\"%s\", msg);\n        free(msg);\n        msg = NULL;\n    }\n}\n"
+    },
+    "SAMPLE_038": {
+      "vulnerable": "// Variant 3\n#include <stdio.h>\nvoid print_len(char *s) {\n    printf(\"%d\", strlen(s));  // VULN: s may be NULL\n}\n",
+      "fixed": "// Variant 3 (Fixed)\n#include <stdio.h>\n#include <string.h>\nvoid print_len(char *s) {\n    if (s != NULL) {\n        printf(\"%zu\", strlen(s));\n    } else {\n        printf(\"0\");\n    }\n}\n"
+    },
+    "SAMPLE_039": {
+      "vulnerable": "// Variant 3\n#include <stdio.h>\nint sum_array(int *arr, int n) {\n    int sum;\n    for (int i = 0; i < n; i++) {\n        sum += arr[i];  // VULN: sum uninitialized\n    }\n    return sum;\n}\n",
+      "fixed": "// Variant 3 (Fixed)\n#include <stdio.h>\nint sum_array(int *arr, int n) {\n    int sum = 0;\n    if (arr == NULL || n <= 0) return 0;\n    for (int i = 0; i < n; i++) {\n        sum += arr[i];\n    }\n    return sum;\n}\n"
+    },
+    "SAMPLE_040": {
+      "vulnerable": "// Variant 3\n#include <stdio.h>\nvoid log_msg(char *msg) {\n    printf(msg);  // VULN: format string injection\n}\n",
+      "fixed": "// Variant 3 (Fixed)\n#include <stdio.h>\nvoid log_msg(char *msg) {\n    if (msg != NULL) {\n        printf(\"%s\", msg);\n    }\n}\n"
+    },
+    "SAMPLE_041": {
+      "vulnerable": "// Variant 3\n#include <stdlib.h>\nvoid run_cmd(char *user_input) {\n    system(user_input);  // VULN: command injection\n}\n",
+      "fixed": "// Variant 3 (Fixed)\n#include <stdlib.h>\n#include <string.h>\nvoid run_cmd(char *user_input) {\n    if (user_input == NULL) return;\n    if (strpbrk(user_input, \";&|\")) {\n        fprintf(stderr, \"Invalid characters\\n\");\n        return;\n    }\n    system(user_input);\n}\n"
+    },
+    "SAMPLE_042": {
+      "vulnerable": "// Variant 3\n#include <stdio.h>\nFILE* open_file(char *filename) {\n    return fopen(filename, \"r\");  // VULN: path traversal\n}\n",
+      "fixed": "// Variant 3 (Fixed)\n#include <stdio.h>\n#include <string.h>\nFILE* open_file(char *filename) {\n    if (filename == NULL || strstr(filename, \"..\") != NULL) {\n        fprintf(stderr, \"Invalid path\\n\");\n        return NULL;\n    }\n    return fopen(filename, \"r\");\n}\n"
+    },
+    "SAMPLE_043": {
+      "vulnerable": "// Variant 3\n#include <stdio.h>\nvoid write_data(int len) {\n    char buf[100];\n    if (len < 100)\n        memcpy(buf, \"data\", len);  // VULN: len is signed, negative bypasses check\n}\n",
+      "fixed": "// Variant 3 (Fixed)\n#include <stdio.h>\n#include <string.h>\nvoid write_data(int len) {\n    char buf[100];\n    if (len > 0 && len < 100)\n        memcpy(buf, \"data\", len);\n}\n"
+    },
+    "SAMPLE_044": {
+      "vulnerable": "// Variant 3\n#include <stdio.h>\nvoid set_flag(int idx) {\n    int flags[5] = {0};\n    flags[idx] = 1;  // VULN: idx unchecked\n}\n",
+      "fixed": "// Variant 3 (Fixed)\n#include <stdio.h>\nvoid set_flag(int idx) {\n    int flags[5] = {0};\n    if (idx >= 0 && idx < 5) {\n        flags[idx] = 1;\n    }\n}\n"
+    },
+    "SAMPLE_045": {
+      "vulnerable": "// Variant 3\n#include <string.h>\nvoid concat(char *a, char *b) {\n    char buf[32];\n    strcat(buf, a);  // VULN: potential overflow\n    strcat(buf, b);\n}\n",
+      "fixed": "// Variant 3 (Fixed)\n#include <string.h>\nvoid concat(char *a, char *b) {\n    char buf[32];\n    buf[0] = '\\0';\n    if (a != NULL)\n        strncat(buf, a, sizeof(buf) - strlen(buf) - 1);\n    if (b != NULL)\n        strncat(buf, b, sizeof(buf) - strlen(buf) - 1);\n}\n"
+    },
+    "SAMPLE_046": {
+      "vulnerable": "// Variant 4\n#include <string.h>\nvoid copy_input(char *input) {\n    char buffer[64];\n    strcpy(buffer, input);  // VULN: no bounds check\n}\n",
+      "fixed": "// Variant 4 (Fixed)\n#include <string.h>\nvoid copy_input(char *input) {\n    char buffer[64];\n    if (input != NULL) {\n        strncpy(buffer, input, sizeof(buffer) - 1);\n        buffer[sizeof(buffer) - 1] = '\\0';\n    }\n}\n"
+    },
+    "SAMPLE_047": {
+      "vulnerable": "// Variant 4\n#include <stdio.h>\nvoid process(int idx) {\n    int arr[10];\n    arr[idx] = 42;  // VULN: idx unchecked\n}\n",
+      "fixed": "// Variant 4 (Fixed)\n#include <stdio.h>\nvoid process(int idx) {\n    int arr[10];\n    if (idx >= 0 && idx < 10) {\n        arr[idx] = 42;\n    } else {\n        fprintf(stderr, \"Index out of bounds\\n\");\n    }\n}\n"
+    },
+    "SAMPLE_048": {
+      "vulnerable": "// Variant 4\n#include <stdlib.h>\n#include <string.h>\nvoid heap_copy(char *src) {\n    char *dst = malloc(10);\n    strcpy(dst, src);  // VULN: dst may be too small\n    free(dst);\n}\n",
+      "fixed": "// Variant 4 (Fixed)\n#include <stdlib.h>\n#include <string.h>\nvoid heap_copy(char *src) {\n    size_t len = strlen(src) + 1;\n    char *dst = malloc(len);\n    if (dst != NULL) {\n        strncpy(dst, src, len - 1);\n        dst[len - 1] = '\\0';\n        free(dst);\n    }\n}\n"
+    },
+    "SAMPLE_049": {
+      "vulnerable": "// Variant 4\n#include <stdio.h>\nint alloc_size(int n) {\n    return n * sizeof(int);  // VULN: integer overflow possible\n}\n",
+      "fixed": "// Variant 4 (Fixed)\n#include <stdio.h>\n#include <limits.h>\nint alloc_size(int n) {\n    if (n > 0 && n > INT_MAX / sizeof(int)) {\n        fprintf(stderr, \"Integer overflow detected\\n\");\n        return -1;\n    }\n    return n * sizeof(int);\n}\n"
+    },
+    "SAMPLE_050": {
+      "vulnerable": "// Variant 4\n#include <stdio.h>\nunsigned int subtract(unsigned int a, unsigned int b) {\n    return a - b;  // VULN: underflow if b > a\n}\n",
+      "fixed": "// Variant 4 (Fixed)\n#include <stdio.h>\nunsigned int subtract(unsigned int a, unsigned int b) {\n    if (b > a) {\n        fprintf(stderr, \"Underflow detected\\n\");\n        return 0;\n    }\n    return a - b;\n}\n"
+    }
+  }
+}

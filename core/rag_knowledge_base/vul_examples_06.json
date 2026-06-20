@@ -1,0 +1,102 @@
+[
+  {
+    "id": "JAVA_SAMPLE_001",
+    "language": "java",
+    "cwe": "CWE-89",
+    "vuln_type": "SQL Injection",
+    "description": "演示 sql_injection 漏洞模式",
+    "vuln_code": "import java.sql.*;\npublic class UserDAO {\n    public User getUser(String username) {\n        String query = \"SELECT * FROM users WHERE name = '\" + use",
+    "fixed_code": "import java.sql.*;\npublic class UserDAO {\n    public User getUser(String username) {\n        String query = \"SELECT * FROM users WHERE name = ?\";\n    ",
+    "text": "SQL Injection CWE-89 演示 sql_injection 漏洞模式 import java.sql.*;\npublic class UserDAO {\n    public User getUser(String username) {\n        String query = \"SELECT * FROM users WHERE name = '\" + username + \"'\";\n        Statement stmt = conn.createStatement();\n        return stmt.executeQuery(query);  // VULN: SQL injection\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_002",
+    "language": "java",
+    "cwe": "CWE-79",
+    "vuln_type": "Cross-site Scripting (XSS)",
+    "description": "演示 xss_reflected 漏洞模式",
+    "vuln_code": "import javax.servlet.http.*;\npublic class SearchServlet extends HttpServlet {\n    protected void doGet(HttpServletRequest req, HttpServletResponse res",
+    "fixed_code": "import javax.servlet.http.*;\nimport org.owasp.encoder.Encode;\npublic class SearchServlet extends HttpServlet {\n    protected void doGet(HttpServletReq",
+    "text": "Cross-site Scripting (XSS) CWE-79 演示 xss_reflected 漏洞模式 import javax.servlet.http.*;\npublic class SearchServlet extends HttpServlet {\n    protected void doGet(HttpServletRequest req, HttpServletResponse res) {\n        String q = req.getParameter(\"q\");\n        res.getWriter().write(\"<h1>Results for \" + q + \"</h1>\");  // VULN: XSS\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_003",
+    "language": "java",
+    "cwe": "CWE-502",
+    "vuln_type": "Deserialization of Untrusted Data",
+    "description": "演示 deserialization 漏洞模式",
+    "vuln_code": "import java.io.*;\npublic class ObjectReader {\n    public Object read(byte[] data) throws Exception {\n        ObjectInputStream ois = new ObjectInputSt",
+    "fixed_code": "import java.io.*;\npublic class ObjectReader {\n    private static final Set<String> ALLOWED = Set.of(\"com.example.SafeClass\");\n    public Object read(b",
+    "text": "Deserialization of Untrusted Data CWE-502 演示 deserialization 漏洞模式 import java.io.*;\npublic class ObjectReader {\n    public Object read(byte[] data) throws Exception {\n        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));\n        return ois.readObject();  // VULN: untrusted deserialization\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_004",
+    "language": "java",
+    "cwe": "CWE-22",
+    "vuln_type": "Path Traversal",
+    "description": "演示 path_traversal 漏洞模式",
+    "vuln_code": "import java.io.*;\npublic class FileService {\n    public String readFile(String path) throws IOException {\n        File f = new File(\"/app/data/\" + pat",
+    "fixed_code": "import java.io.*;\nimport java.nio.file.*;\npublic class FileService {\n    public String readFile(String path) throws IOException {\n        Path base = ",
+    "text": "Path Traversal CWE-22 演示 path_traversal 漏洞模式 import java.io.*;\npublic class FileService {\n    public String readFile(String path) throws IOException {\n        File f = new File(\"/app/data/\" + path);\n        return new String(Files.readAllBytes(f.toPath()));  // VULN: path traversal\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_005",
+    "language": "java",
+    "cwe": "CWE-78",
+    "vuln_type": "OS Command Injection",
+    "description": "演示 cmd_injection 漏洞模式",
+    "vuln_code": "import java.lang.Runtime;\npublic class ShellRunner {\n    public String run(String cmd) throws Exception {\n        Process p = Runtime.getRuntime().exe",
+    "fixed_code": "import java.lang.Runtime;\nimport java.util.List;\npublic class ShellRunner {\n    public String run(List<String> cmd) throws Exception {\n        Process",
+    "text": "OS Command Injection CWE-78 演示 cmd_injection 漏洞模式 import java.lang.Runtime;\npublic class ShellRunner {\n    public String run(String cmd) throws Exception {\n        Process p = Runtime.getRuntime().exec(cmd);  // VULN: command injection\n        return new String(p.getInputStream().readAllBytes());\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_006",
+    "language": "java",
+    "cwe": "CWE-611",
+    "vuln_type": "XML External Entity (XXE)",
+    "description": "演示 xxe 漏洞模式",
+    "vuln_code": "import javax.xml.parsers.*;\nimport org.w3c.dom.*;\npublic class XMLParser {\n    public Document parse(String xml) throws Exception {\n        DocumentBu",
+    "fixed_code": "import javax.xml.parsers.*;\nimport org.w3c.dom.*;\npublic class XMLParser {\n    public Document parse(String xml) throws Exception {\n        DocumentBu",
+    "text": "XML External Entity (XXE) CWE-611 演示 xxe 漏洞模式 import javax.xml.parsers.*;\nimport org.w3c.dom.*;\npublic class XMLParser {\n    public Document parse(String xml) throws Exception {\n        DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();\n        DocumentBuilder db = f.newDocumentBuilder();\n        return db.parse(new InputSource(new StringReader(xml)));  // VULN: XXE\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_007",
+    "language": "java",
+    "cwe": "CWE-918",
+    "vuln_type": "Server-Side Request Forgery (SSRF)",
+    "description": "演示 ssrf 漏洞模式",
+    "vuln_code": "import java.net.*;\npublic class URLFetcher {\n    public String fetch(String url) throws Exception {\n        URL u = new URL(url);\n        return new S",
+    "fixed_code": "import java.net.*;\nimport java.util.Set;\npublic class URLFetcher {\n    private static final Set<String> ALLOWED = Set.of(\"api.example.com\", \"cdn.examp",
+    "text": "Server-Side Request Forgery (SSRF) CWE-918 演示 ssrf 漏洞模式 import java.net.*;\npublic class URLFetcher {\n    public String fetch(String url) throws Exception {\n        URL u = new URL(url);\n        return new String(u.openStream().readAllBytes());  // VULN: SSRF\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_008",
+    "language": "java",
+    "cwe": "CWE-200",
+    "vuln_type": "Information Exposure",
+    "description": "演示 info_exposure 漏洞模式",
+    "vuln_code": "import java.io.*;\npublic class ErrorHandler {\n    public void handle(Exception e, PrintWriter out) {\n        e.printStackTrace(out);  // VULN: info ex",
+    "fixed_code": "import java.io.*;\nimport java.util.logging.*;\npublic class ErrorHandler {\n    private static final Logger LOG = Logger.getLogger(ErrorHandler.class.ge",
+    "text": "Information Exposure CWE-200 演示 info_exposure 漏洞模式 import java.io.*;\npublic class ErrorHandler {\n    public void handle(Exception e, PrintWriter out) {\n        e.printStackTrace(out);  // VULN: info exposure\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_009",
+    "language": "java",
+    "cwe": "CWE-312",
+    "vuln_type": "Cleartext Storage of Sensitive Information",
+    "description": "演示 cleartext_storage 漏洞模式",
+    "vuln_code": "import java.io.*;\npublic class ConfigWriter {\n    public void savePassword(String password) throws IOException {\n        FileWriter fw = new FileWrite",
+    "fixed_code": "import java.io.*;\nimport java.util.Base64;\nimport javax.crypto.Cipher;\nimport javax.crypto.KeyGenerator;\nimport javax.crypto.SecretKey;\npublic class C",
+    "text": "Cleartext Storage of Sensitive Information CWE-312 演示 cleartext_storage 漏洞模式 import java.io.*;\npublic class ConfigWriter {\n    public void savePassword(String password) throws IOException {\n        FileWriter fw = new FileWriter(\"config.txt\");\n        fw.write(\"password=\" + password);  // VULN: cleartext storage\n        fw.close();\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_010",
+    "language": "java",
+    "cwe": "CWE-327",
+    "vuln_type": "Use of Broken or Risky Cryptographic Algorithm",
+    "description": "演示 weak_crypto 漏洞模式",
+    "vuln_code": "import javax.crypto.*;\npublic class Crypto {\n    public byte[] encrypt(String data) throws Exception {\n        Cipher c = Cipher.getInstance(\"DES/ECB/",
+    "fixed_code": "import javax.crypto.*;\nimport javax.crypto.spec.GCMParameterSpec;\nimport java.security.SecureRandom;\npublic class Crypto {\n    public byte[] encrypt(S",
+    "text": "Use of Broken or Risky Cryptographic Algorithm CWE-327 演示 weak_crypto 漏洞模式 import javax.crypto.*;\npublic class Crypto {\n    public byte[] encrypt(String data) throws Exception {\n        Cipher c = Cipher.getInstance(\"DES/ECB/PKCS5Padding\");  // VULN: weak algorithm\n        SecretKey key = KeyGenerator.getInstance(\"DES\").generateKey();\n        c.init(Cipher.ENCRYPT_MODE, key);\n        return c.doFinal(data.getBytes());\n    }\n}\n"
+  }
+]

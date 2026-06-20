@@ -1,0 +1,102 @@
+[
+  {
+    "id": "JAVA_SAMPLE_021",
+    "language": "java",
+    "cwe": "CWE-611",
+    "vuln_type": "XML External Entity (XXE)",
+    "description": "演示 xxe 漏洞模式",
+    "vuln_code": "// Variant 2\nimport javax.xml.parsers.*;\nimport org.w3c.dom.*;\npublic class XMLParser {\n    public Document parse(String xml) throws Exception {\n     ",
+    "fixed_code": "// Variant 2 (Fixed)\nimport javax.xml.parsers.*;\nimport org.w3c.dom.*;\npublic class XMLParser {\n    public Document parse(String xml) throws Exception",
+    "text": "XML External Entity (XXE) CWE-611 演示 xxe 漏洞模式 // Variant 2\nimport javax.xml.parsers.*;\nimport org.w3c.dom.*;\npublic class XMLParser {\n    public Document parse(String xml) throws Exception {\n        DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();\n        DocumentBuilder db = f.newDocumentBuilder();\n        return db.parse(new InputSource(new StringReader(xml)));  // VULN: XXE\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_022",
+    "language": "java",
+    "cwe": "CWE-918",
+    "vuln_type": "Server-Side Request Forgery (SSRF)",
+    "description": "演示 ssrf 漏洞模式",
+    "vuln_code": "// Variant 2\nimport java.net.*;\npublic class URLFetcher {\n    public String fetch(String url) throws Exception {\n        URL u = new URL(url);\n       ",
+    "fixed_code": "// Variant 2 (Fixed)\nimport java.net.*;\nimport java.util.Set;\npublic class URLFetcher {\n    private static final Set<String> ALLOWED = Set.of(\"api.exa",
+    "text": "Server-Side Request Forgery (SSRF) CWE-918 演示 ssrf 漏洞模式 // Variant 2\nimport java.net.*;\npublic class URLFetcher {\n    public String fetch(String url) throws Exception {\n        URL u = new URL(url);\n        return new String(u.openStream().readAllBytes());  // VULN: SSRF\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_023",
+    "language": "java",
+    "cwe": "CWE-200",
+    "vuln_type": "Information Exposure",
+    "description": "演示 info_exposure 漏洞模式",
+    "vuln_code": "// Variant 2\nimport java.io.*;\npublic class ErrorHandler {\n    public void handle(Exception e, PrintWriter out) {\n        e.printStackTrace(out);  // ",
+    "fixed_code": "// Variant 2 (Fixed)\nimport java.io.*;\nimport java.util.logging.*;\npublic class ErrorHandler {\n    private static final Logger LOG = Logger.getLogger(",
+    "text": "Information Exposure CWE-200 演示 info_exposure 漏洞模式 // Variant 2\nimport java.io.*;\npublic class ErrorHandler {\n    public void handle(Exception e, PrintWriter out) {\n        e.printStackTrace(out);  // VULN: info exposure\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_024",
+    "language": "java",
+    "cwe": "CWE-312",
+    "vuln_type": "Cleartext Storage of Sensitive Information",
+    "description": "演示 cleartext_storage 漏洞模式",
+    "vuln_code": "// Variant 2\nimport java.io.*;\npublic class ConfigWriter {\n    public void savePassword(String password) throws IOException {\n        FileWriter fw = ",
+    "fixed_code": "// Variant 2 (Fixed)\nimport java.io.*;\nimport java.util.Base64;\nimport javax.crypto.Cipher;\nimport javax.crypto.KeyGenerator;\nimport javax.crypto.Secr",
+    "text": "Cleartext Storage of Sensitive Information CWE-312 演示 cleartext_storage 漏洞模式 // Variant 2\nimport java.io.*;\npublic class ConfigWriter {\n    public void savePassword(String password) throws IOException {\n        FileWriter fw = new FileWriter(\"config.txt\");\n        fw.write(\"password=\" + password);  // VULN: cleartext storage\n        fw.close();\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_025",
+    "language": "java",
+    "cwe": "CWE-327",
+    "vuln_type": "Use of Broken or Risky Cryptographic Algorithm",
+    "description": "演示 weak_crypto 漏洞模式",
+    "vuln_code": "// Variant 2\nimport javax.crypto.*;\npublic class Crypto {\n    public byte[] encrypt(String data) throws Exception {\n        Cipher c = Cipher.getInsta",
+    "fixed_code": "// Variant 2 (Fixed)\nimport javax.crypto.*;\nimport javax.crypto.spec.GCMParameterSpec;\nimport java.security.SecureRandom;\npublic class Crypto {\n    pu",
+    "text": "Use of Broken or Risky Cryptographic Algorithm CWE-327 演示 weak_crypto 漏洞模式 // Variant 2\nimport javax.crypto.*;\npublic class Crypto {\n    public byte[] encrypt(String data) throws Exception {\n        Cipher c = Cipher.getInstance(\"DES/ECB/PKCS5Padding\");  // VULN: weak algorithm\n        SecretKey key = KeyGenerator.getInstance(\"DES\").generateKey();\n        c.init(Cipher.ENCRYPT_MODE, key);\n        return c.doFinal(data.getBytes());\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_026",
+    "language": "java",
+    "cwe": "CWE-20",
+    "vuln_type": "Improper Input Validation",
+    "description": "演示 input_validation 漏洞模式",
+    "vuln_code": "// Variant 2\npublic class DiscountController {\n    public double applyDiscount(double price, double discount) {\n        return price * (1 - discount);",
+    "fixed_code": "// Variant 2 (Fixed)\npublic class DiscountController {\n    public double applyDiscount(double price, double discount) {\n        if (discount < 0 || di",
+    "text": "Improper Input Validation CWE-20 演示 input_validation 漏洞模式 // Variant 2\npublic class DiscountController {\n    public double applyDiscount(double price, double discount) {\n        return price * (1 - discount);  // VULN: discount not validated\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_027",
+    "language": "java",
+    "cwe": "CWE-434",
+    "vuln_type": "Unrestricted Upload of File",
+    "description": "演示 file_upload 漏洞模式",
+    "vuln_code": "// Variant 2\nimport java.io.*;\npublic class UploadServlet {\n    public void saveFile(String filename, InputStream data) throws IOException {\n        F",
+    "fixed_code": "// Variant 2 (Fixed)\nimport java.io.*;\nimport java.util.Arrays;\npublic class UploadServlet {\n    private static final String[] ALLOWED = {\".jpg\", \".pn",
+    "text": "Unrestricted Upload of File CWE-434 演示 file_upload 漏洞模式 // Variant 2\nimport java.io.*;\npublic class UploadServlet {\n    public void saveFile(String filename, InputStream data) throws IOException {\n        FileOutputStream fos = new FileOutputStream(\"/uploads/\" + filename);\n        fos.write(data.readAllBytes());  // VULN: unrestricted upload\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_028",
+    "language": "java",
+    "cwe": "CWE-94",
+    "vuln_type": "Code Injection",
+    "description": "演示 code_injection 漏洞模式",
+    "vuln_code": "// Variant 2\nimport javax.script.*;\npublic class RuleEngine {\n    public Object eval(String rule) throws Exception {\n        ScriptEngine engine = new",
+    "fixed_code": "// Variant 2 (Fixed)\nimport javax.script.*;\nimport java.util.Set;\npublic class RuleEngine {\n    private static final Set<String> ALLOWED_OPS = Set.of(",
+    "text": "Code Injection CWE-94 演示 code_injection 漏洞模式 // Variant 2\nimport javax.script.*;\npublic class RuleEngine {\n    public Object eval(String rule) throws Exception {\n        ScriptEngine engine = new ScriptEngineManager().getEngineByName(\"js\");\n        return engine.eval(rule);  // VULN: code injection\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_029",
+    "language": "java",
+    "cwe": "CWE-798",
+    "vuln_type": "Use of Hard-coded Credentials",
+    "description": "演示 hardcoded_creds 漏洞模式",
+    "vuln_code": "// Variant 2\npublic class DBConfig {\n    public static final String USERNAME = \"admin\";\n    public static final String PASSWORD = \"password123\";  // V",
+    "fixed_code": "// Variant 2 (Fixed)\nimport java.io.*;\nimport java.util.Properties;\npublic class DBConfig {\n    public static String getPassword() throws IOException ",
+    "text": "Use of Hard-coded Credentials CWE-798 演示 hardcoded_creds 漏洞模式 // Variant 2\npublic class DBConfig {\n    public static final String USERNAME = \"admin\";\n    public static final String PASSWORD = \"password123\";  // VULN: hardcoded\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_030",
+    "language": "java",
+    "cwe": "CWE-307",
+    "vuln_type": "Improper Restriction of Excessive Authentication Attempts",
+    "description": "演示 brute_force 漏洞模式",
+    "vuln_code": "// Variant 2\npublic class LoginController {\n    public boolean login(String user, String pass) {\n        return checkPassword(user, pass);  // VULN: n",
+    "fixed_code": "// Variant 2 (Fixed)\nimport java.util.Map;\nimport java.util.concurrent.ConcurrentHashMap;\npublic class LoginController {\n    private static final Map<",
+    "text": "Improper Restriction of Excessive Authentication Attempts CWE-307 演示 brute_force 漏洞模式 // Variant 2\npublic class LoginController {\n    public boolean login(String user, String pass) {\n        return checkPassword(user, pass);  // VULN: no rate limiting\n    }\n}\n"
+  }
+]

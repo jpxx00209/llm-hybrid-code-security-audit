@@ -1,0 +1,102 @@
+[
+  {
+    "id": "JAVA_SAMPLE_011",
+    "language": "java",
+    "cwe": "CWE-20",
+    "vuln_type": "Improper Input Validation",
+    "description": "演示 input_validation 漏洞模式",
+    "vuln_code": "public class DiscountController {\n    public double applyDiscount(double price, double discount) {\n        return price * (1 - discount);  // VULN: di",
+    "fixed_code": "public class DiscountController {\n    public double applyDiscount(double price, double discount) {\n        if (discount < 0 || discount > 1) {\n       ",
+    "text": "Improper Input Validation CWE-20 演示 input_validation 漏洞模式 public class DiscountController {\n    public double applyDiscount(double price, double discount) {\n        return price * (1 - discount);  // VULN: discount not validated\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_012",
+    "language": "java",
+    "cwe": "CWE-434",
+    "vuln_type": "Unrestricted Upload of File",
+    "description": "演示 file_upload 漏洞模式",
+    "vuln_code": "import java.io.*;\npublic class UploadServlet {\n    public void saveFile(String filename, InputStream data) throws IOException {\n        FileOutputStre",
+    "fixed_code": "import java.io.*;\nimport java.util.Arrays;\npublic class UploadServlet {\n    private static final String[] ALLOWED = {\".jpg\", \".png\", \".pdf\"};\n    publ",
+    "text": "Unrestricted Upload of File CWE-434 演示 file_upload 漏洞模式 import java.io.*;\npublic class UploadServlet {\n    public void saveFile(String filename, InputStream data) throws IOException {\n        FileOutputStream fos = new FileOutputStream(\"/uploads/\" + filename);\n        fos.write(data.readAllBytes());  // VULN: unrestricted upload\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_013",
+    "language": "java",
+    "cwe": "CWE-94",
+    "vuln_type": "Code Injection",
+    "description": "演示 code_injection 漏洞模式",
+    "vuln_code": "import javax.script.*;\npublic class RuleEngine {\n    public Object eval(String rule) throws Exception {\n        ScriptEngine engine = new ScriptEngine",
+    "fixed_code": "import javax.script.*;\nimport java.util.Set;\npublic class RuleEngine {\n    private static final Set<String> ALLOWED_OPS = Set.of(\"+\", \"-\", \"*\", \"/\");\n",
+    "text": "Code Injection CWE-94 演示 code_injection 漏洞模式 import javax.script.*;\npublic class RuleEngine {\n    public Object eval(String rule) throws Exception {\n        ScriptEngine engine = new ScriptEngineManager().getEngineByName(\"js\");\n        return engine.eval(rule);  // VULN: code injection\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_014",
+    "language": "java",
+    "cwe": "CWE-798",
+    "vuln_type": "Use of Hard-coded Credentials",
+    "description": "演示 hardcoded_creds 漏洞模式",
+    "vuln_code": "public class DBConfig {\n    public static final String USERNAME = \"admin\";\n    public static final String PASSWORD = \"password123\";  // VULN: hardcode",
+    "fixed_code": "import java.io.*;\nimport java.util.Properties;\npublic class DBConfig {\n    public static String getPassword() throws IOException {\n        Properties ",
+    "text": "Use of Hard-coded Credentials CWE-798 演示 hardcoded_creds 漏洞模式 public class DBConfig {\n    public static final String USERNAME = \"admin\";\n    public static final String PASSWORD = \"password123\";  // VULN: hardcoded\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_015",
+    "language": "java",
+    "cwe": "CWE-307",
+    "vuln_type": "Improper Restriction of Excessive Authentication Attempts",
+    "description": "演示 brute_force 漏洞模式",
+    "vuln_code": "public class LoginController {\n    public boolean login(String user, String pass) {\n        return checkPassword(user, pass);  // VULN: no rate limiti",
+    "fixed_code": "import java.util.Map;\nimport java.util.concurrent.ConcurrentHashMap;\npublic class LoginController {\n    private static final Map<String, Integer> atte",
+    "text": "Improper Restriction of Excessive Authentication Attempts CWE-307 演示 brute_force 漏洞模式 public class LoginController {\n    public boolean login(String user, String pass) {\n        return checkPassword(user, pass);  // VULN: no rate limiting\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_016",
+    "language": "java",
+    "cwe": "CWE-89",
+    "vuln_type": "SQL Injection",
+    "description": "演示 sql_injection 漏洞模式",
+    "vuln_code": "// Variant 2\nimport java.sql.*;\npublic class UserDAO {\n    public User getUser(String username) {\n        String query = \"SELECT * FROM users WHERE na",
+    "fixed_code": "// Variant 2 (Fixed)\nimport java.sql.*;\npublic class UserDAO {\n    public User getUser(String username) {\n        String query = \"SELECT * FROM users ",
+    "text": "SQL Injection CWE-89 演示 sql_injection 漏洞模式 // Variant 2\nimport java.sql.*;\npublic class UserDAO {\n    public User getUser(String username) {\n        String query = \"SELECT * FROM users WHERE name = '\" + username + \"'\";\n        Statement stmt = conn.createStatement();\n        return stmt.executeQuery(query);  // VULN: SQL injection\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_017",
+    "language": "java",
+    "cwe": "CWE-79",
+    "vuln_type": "Cross-site Scripting (XSS)",
+    "description": "演示 xss_reflected 漏洞模式",
+    "vuln_code": "// Variant 2\nimport javax.servlet.http.*;\npublic class SearchServlet extends HttpServlet {\n    protected void doGet(HttpServletRequest req, HttpServle",
+    "fixed_code": "// Variant 2 (Fixed)\nimport javax.servlet.http.*;\nimport org.owasp.encoder.Encode;\npublic class SearchServlet extends HttpServlet {\n    protected void",
+    "text": "Cross-site Scripting (XSS) CWE-79 演示 xss_reflected 漏洞模式 // Variant 2\nimport javax.servlet.http.*;\npublic class SearchServlet extends HttpServlet {\n    protected void doGet(HttpServletRequest req, HttpServletResponse res) {\n        String q = req.getParameter(\"q\");\n        res.getWriter().write(\"<h1>Results for \" + q + \"</h1>\");  // VULN: XSS\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_018",
+    "language": "java",
+    "cwe": "CWE-502",
+    "vuln_type": "Deserialization of Untrusted Data",
+    "description": "演示 deserialization 漏洞模式",
+    "vuln_code": "// Variant 2\nimport java.io.*;\npublic class ObjectReader {\n    public Object read(byte[] data) throws Exception {\n        ObjectInputStream ois = new ",
+    "fixed_code": "// Variant 2 (Fixed)\nimport java.io.*;\npublic class ObjectReader {\n    private static final Set<String> ALLOWED = Set.of(\"com.example.SafeClass\");\n   ",
+    "text": "Deserialization of Untrusted Data CWE-502 演示 deserialization 漏洞模式 // Variant 2\nimport java.io.*;\npublic class ObjectReader {\n    public Object read(byte[] data) throws Exception {\n        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));\n        return ois.readObject();  // VULN: untrusted deserialization\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_019",
+    "language": "java",
+    "cwe": "CWE-22",
+    "vuln_type": "Path Traversal",
+    "description": "演示 path_traversal 漏洞模式",
+    "vuln_code": "// Variant 2\nimport java.io.*;\npublic class FileService {\n    public String readFile(String path) throws IOException {\n        File f = new File(\"/app",
+    "fixed_code": "// Variant 2 (Fixed)\nimport java.io.*;\nimport java.nio.file.*;\npublic class FileService {\n    public String readFile(String path) throws IOException {",
+    "text": "Path Traversal CWE-22 演示 path_traversal 漏洞模式 // Variant 2\nimport java.io.*;\npublic class FileService {\n    public String readFile(String path) throws IOException {\n        File f = new File(\"/app/data/\" + path);\n        return new String(Files.readAllBytes(f.toPath()));  // VULN: path traversal\n    }\n}\n"
+  },
+  {
+    "id": "JAVA_SAMPLE_020",
+    "language": "java",
+    "cwe": "CWE-78",
+    "vuln_type": "OS Command Injection",
+    "description": "演示 cmd_injection 漏洞模式",
+    "vuln_code": "// Variant 2\nimport java.lang.Runtime;\npublic class ShellRunner {\n    public String run(String cmd) throws Exception {\n        Process p = Runtime.get",
+    "fixed_code": "// Variant 2 (Fixed)\nimport java.lang.Runtime;\nimport java.util.List;\npublic class ShellRunner {\n    public String run(List<String> cmd) throws Except",
+    "text": "OS Command Injection CWE-78 演示 cmd_injection 漏洞模式 // Variant 2\nimport java.lang.Runtime;\npublic class ShellRunner {\n    public String run(String cmd) throws Exception {\n        Process p = Runtime.getRuntime().exec(cmd);  // VULN: command injection\n        return new String(p.getInputStream().readAllBytes());\n    }\n}\n"
+  }
+]

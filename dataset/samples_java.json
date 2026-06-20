@@ -1,0 +1,204 @@
+{
+  "Java": {
+    "SAMPLE_001": {
+      "vulnerable": "import java.sql.*;\npublic class UserDAO {\n    public User getUser(String username) {\n        String query = \"SELECT * FROM users WHERE name = '\" + username + \"'\";\n        Statement stmt = conn.createStatement();\n        return stmt.executeQuery(query);  // VULN: SQL injection\n    }\n}\n",
+      "fixed": "import java.sql.*;\npublic class UserDAO {\n    public User getUser(String username) {\n        String query = \"SELECT * FROM users WHERE name = ?\";\n        PreparedStatement pstmt = conn.prepareStatement(query);\n        pstmt.setString(1, username);\n        return pstmt.executeQuery();\n    }\n}\n"
+    },
+    "SAMPLE_002": {
+      "vulnerable": "import javax.servlet.http.*;\npublic class SearchServlet extends HttpServlet {\n    protected void doGet(HttpServletRequest req, HttpServletResponse res) {\n        String q = req.getParameter(\"q\");\n        res.getWriter().write(\"<h1>Results for \" + q + \"</h1>\");  // VULN: XSS\n    }\n}\n",
+      "fixed": "import javax.servlet.http.*;\nimport org.owasp.encoder.Encode;\npublic class SearchServlet extends HttpServlet {\n    protected void doGet(HttpServletRequest req, HttpServletResponse res) {\n        String q = req.getParameter(\"q\");\n        res.getWriter().write(\"<h1>Results for \" + Encode.forHtml(q) + \"</h1>\");\n    }\n}\n"
+    },
+    "SAMPLE_003": {
+      "vulnerable": "import java.io.*;\npublic class ObjectReader {\n    public Object read(byte[] data) throws Exception {\n        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));\n        return ois.readObject();  // VULN: untrusted deserialization\n    }\n}\n",
+      "fixed": "import java.io.*;\npublic class ObjectReader {\n    private static final Set<String> ALLOWED = Set.of(\"com.example.SafeClass\");\n    public Object read(byte[] data) throws Exception {\n        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data)) {\n            protected Class<?> resolveClass(ObjectStreamClass desc) {\n                if (!ALLOWED.contains(desc.getName())) {\n                    throw new SecurityException(\"Class not allowed\");\n                }\n                return super.resolveClass(desc);\n            }\n        };\n        return ois.readObject();\n    }\n}\n"
+    },
+    "SAMPLE_004": {
+      "vulnerable": "import java.io.*;\npublic class FileService {\n    public String readFile(String path) throws IOException {\n        File f = new File(\"/app/data/\" + path);\n        return new String(Files.readAllBytes(f.toPath()));  // VULN: path traversal\n    }\n}\n",
+      "fixed": "import java.io.*;\nimport java.nio.file.*;\npublic class FileService {\n    public String readFile(String path) throws IOException {\n        Path base = Paths.get(\"/app/data\").normalize().toAbsolutePath();\n        Path target = base.resolve(path).normalize().toAbsolutePath();\n        if (!target.startsWith(base)) {\n            throw new SecurityException(\"Invalid path\");\n        }\n        return new String(Files.readAllBytes(target));\n    }\n}\n"
+    },
+    "SAMPLE_005": {
+      "vulnerable": "import java.lang.Runtime;\npublic class ShellRunner {\n    public String run(String cmd) throws Exception {\n        Process p = Runtime.getRuntime().exec(cmd);  // VULN: command injection\n        return new String(p.getInputStream().readAllBytes());\n    }\n}\n",
+      "fixed": "import java.lang.Runtime;\nimport java.util.List;\npublic class ShellRunner {\n    public String run(List<String> cmd) throws Exception {\n        ProcessBuilder pb = new ProcessBuilder(cmd);\n        pb.redirectErrorStream(true);\n        Process p = pb.start();\n        return new String(p.getInputStream().readAllBytes());\n    }\n}\n"
+    },
+    "SAMPLE_006": {
+      "vulnerable": "import javax.xml.parsers.*;\nimport org.w3c.dom.*;\npublic class XMLParser {\n    public Document parse(String xml) throws Exception {\n        DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();\n        DocumentBuilder db = f.newDocumentBuilder();\n        return db.parse(new InputSource(new StringReader(xml)));  // VULN: XXE\n    }\n}\n",
+      "fixed": "import javax.xml.parsers.*;\nimport org.w3c.dom.*;\npublic class XMLParser {\n    public Document parse(String xml) throws Exception {\n        DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();\n        f.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\", true);\n        f.setFeature(\"http://xml.org/sax/features/external-general-entities\", false);\n        f.setFeature(\"http://xml.org/sax/features/external-parameter-entities\", false);\n        DocumentBuilder db = f.newDocumentBuilder();\n        return db.parse(new InputSource(new StringReader(xml)));\n    }\n}\n"
+    },
+    "SAMPLE_007": {
+      "vulnerable": "import java.net.*;\npublic class URLFetcher {\n    public String fetch(String url) throws Exception {\n        URL u = new URL(url);\n        return new String(u.openStream().readAllBytes());  // VULN: SSRF\n    }\n}\n",
+      "fixed": "import java.net.*;\nimport java.util.Set;\npublic class URLFetcher {\n    private static final Set<String> ALLOWED = Set.of(\"api.example.com\", \"cdn.example.com\");\n    public String fetch(String urlStr) throws Exception {\n        URL u = new URL(urlStr);\n        if (!ALLOWED.contains(u.getHost())) {\n            throw new SecurityException(\"Host not allowed\");\n        }\n        return new String(u.openStream().readAllBytes());\n    }\n}\n"
+    },
+    "SAMPLE_008": {
+      "vulnerable": "import java.io.*;\npublic class ErrorHandler {\n    public void handle(Exception e, PrintWriter out) {\n        e.printStackTrace(out);  // VULN: info exposure\n    }\n}\n",
+      "fixed": "import java.io.*;\nimport java.util.logging.*;\npublic class ErrorHandler {\n    private static final Logger LOG = Logger.getLogger(ErrorHandler.class.getName());\n    public void handle(Exception e, PrintWriter out) {\n        LOG.log(Level.SEVERE, \"Error\", e);\n        out.write(\"An error occurred. Please try again later.\");\n    }\n}\n"
+    },
+    "SAMPLE_009": {
+      "vulnerable": "import java.io.*;\npublic class ConfigWriter {\n    public void savePassword(String password) throws IOException {\n        FileWriter fw = new FileWriter(\"config.txt\");\n        fw.write(\"password=\" + password);  // VULN: cleartext storage\n        fw.close();\n    }\n}\n",
+      "fixed": "import java.io.*;\nimport java.util.Base64;\nimport javax.crypto.Cipher;\nimport javax.crypto.KeyGenerator;\nimport javax.crypto.SecretKey;\npublic class ConfigWriter {\n    public void savePassword(String password) throws Exception {\n        SecretKey key = KeyGenerator.getInstance(\"AES\").generateKey();\n        Cipher cipher = Cipher.getInstance(\"AES\");\n        cipher.init(Cipher.ENCRYPT_MODE, key);\n        byte[] encrypted = cipher.doFinal(password.getBytes());\n        FileWriter fw = new FileWriter(\"config.txt\");\n        fw.write(\"password=\" + Base64.getEncoder().encodeToString(encrypted));\n        fw.close();\n    }\n}\n"
+    },
+    "SAMPLE_010": {
+      "vulnerable": "import javax.crypto.*;\npublic class Crypto {\n    public byte[] encrypt(String data) throws Exception {\n        Cipher c = Cipher.getInstance(\"DES/ECB/PKCS5Padding\");  // VULN: weak algorithm\n        SecretKey key = KeyGenerator.getInstance(\"DES\").generateKey();\n        c.init(Cipher.ENCRYPT_MODE, key);\n        return c.doFinal(data.getBytes());\n    }\n}\n",
+      "fixed": "import javax.crypto.*;\nimport javax.crypto.spec.GCMParameterSpec;\nimport java.security.SecureRandom;\npublic class Crypto {\n    public byte[] encrypt(String data) throws Exception {\n        Cipher c = Cipher.getInstance(\"AES/GCM/NoPadding\");\n        SecretKey key = KeyGenerator.getInstance(\"AES\").generateKey();\n        byte[] iv = new byte[12];\n        new SecureRandom().nextBytes(iv);\n        c.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(128, iv));\n        return c.doFinal(data.getBytes());\n    }\n}\n"
+    },
+    "SAMPLE_011": {
+      "vulnerable": "public class DiscountController {\n    public double applyDiscount(double price, double discount) {\n        return price * (1 - discount);  // VULN: discount not validated\n    }\n}\n",
+      "fixed": "public class DiscountController {\n    public double applyDiscount(double price, double discount) {\n        if (discount < 0 || discount > 1) {\n            throw new IllegalArgumentException(\"Invalid discount\");\n        }\n        return price * (1 - discount);\n    }\n}\n"
+    },
+    "SAMPLE_012": {
+      "vulnerable": "import java.io.*;\npublic class UploadServlet {\n    public void saveFile(String filename, InputStream data) throws IOException {\n        FileOutputStream fos = new FileOutputStream(\"/uploads/\" + filename);\n        fos.write(data.readAllBytes());  // VULN: unrestricted upload\n    }\n}\n",
+      "fixed": "import java.io.*;\nimport java.util.Arrays;\npublic class UploadServlet {\n    private static final String[] ALLOWED = {\".jpg\", \".png\", \".pdf\"};\n    public void saveFile(String filename, InputStream data) throws IOException {\n        String ext = filename.substring(filename.lastIndexOf('.'));\n        if (!Arrays.asList(ALLOWED).contains(ext)) {\n            throw new SecurityException(\"File type not allowed\");\n        }\n        FileOutputStream fos = new FileOutputStream(\"/uploads/\" + filename);\n        fos.write(data.readAllBytes());\n    }\n}\n"
+    },
+    "SAMPLE_013": {
+      "vulnerable": "import javax.script.*;\npublic class RuleEngine {\n    public Object eval(String rule) throws Exception {\n        ScriptEngine engine = new ScriptEngineManager().getEngineByName(\"js\");\n        return engine.eval(rule);  // VULN: code injection\n    }\n}\n",
+      "fixed": "import javax.script.*;\nimport java.util.Set;\npublic class RuleEngine {\n    private static final Set<String> ALLOWED_OPS = Set.of(\"+\", \"-\", \"*\", \"/\");\n    public Object eval(String rule) throws Exception {\n        if (!rule.matches(\"[0-9+\\-*/\\.() ]+\")) {\n            throw new SecurityException(\"Invalid expression\");\n        }\n        ScriptEngine engine = new ScriptEngineManager().getEngineByName(\"js\");\n        return engine.eval(rule);\n    }\n}\n"
+    },
+    "SAMPLE_014": {
+      "vulnerable": "public class DBConfig {\n    public static final String USERNAME = \"admin\";\n    public static final String PASSWORD = \"password123\";  // VULN: hardcoded\n}\n",
+      "fixed": "import java.io.*;\nimport java.util.Properties;\npublic class DBConfig {\n    public static String getPassword() throws IOException {\n        Properties props = new Properties();\n        props.load(new FileInputStream(\"db.properties\"));\n        return props.getProperty(\"password\");\n    }\n}\n"
+    },
+    "SAMPLE_015": {
+      "vulnerable": "public class LoginController {\n    public boolean login(String user, String pass) {\n        return checkPassword(user, pass);  // VULN: no rate limiting\n    }\n}\n",
+      "fixed": "import java.util.Map;\nimport java.util.concurrent.ConcurrentHashMap;\npublic class LoginController {\n    private static final Map<String, Integer> attempts = new ConcurrentHashMap<>();\n    public boolean login(String user, String pass) {\n        int count = attempts.getOrDefault(user, 0);\n        if (count >= 5) {\n            throw new SecurityException(\"Too many attempts\");\n        }\n        attempts.put(user, count + 1);\n        return checkPassword(user, pass);\n    }\n}\n"
+    },
+    "SAMPLE_016": {
+      "vulnerable": "// Variant 2\nimport java.sql.*;\npublic class UserDAO {\n    public User getUser(String username) {\n        String query = \"SELECT * FROM users WHERE name = '\" + username + \"'\";\n        Statement stmt = conn.createStatement();\n        return stmt.executeQuery(query);  // VULN: SQL injection\n    }\n}\n",
+      "fixed": "// Variant 2 (Fixed)\nimport java.sql.*;\npublic class UserDAO {\n    public User getUser(String username) {\n        String query = \"SELECT * FROM users WHERE name = ?\";\n        PreparedStatement pstmt = conn.prepareStatement(query);\n        pstmt.setString(1, username);\n        return pstmt.executeQuery();\n    }\n}\n"
+    },
+    "SAMPLE_017": {
+      "vulnerable": "// Variant 2\nimport javax.servlet.http.*;\npublic class SearchServlet extends HttpServlet {\n    protected void doGet(HttpServletRequest req, HttpServletResponse res) {\n        String q = req.getParameter(\"q\");\n        res.getWriter().write(\"<h1>Results for \" + q + \"</h1>\");  // VULN: XSS\n    }\n}\n",
+      "fixed": "// Variant 2 (Fixed)\nimport javax.servlet.http.*;\nimport org.owasp.encoder.Encode;\npublic class SearchServlet extends HttpServlet {\n    protected void doGet(HttpServletRequest req, HttpServletResponse res) {\n        String q = req.getParameter(\"q\");\n        res.getWriter().write(\"<h1>Results for \" + Encode.forHtml(q) + \"</h1>\");\n    }\n}\n"
+    },
+    "SAMPLE_018": {
+      "vulnerable": "// Variant 2\nimport java.io.*;\npublic class ObjectReader {\n    public Object read(byte[] data) throws Exception {\n        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));\n        return ois.readObject();  // VULN: untrusted deserialization\n    }\n}\n",
+      "fixed": "// Variant 2 (Fixed)\nimport java.io.*;\npublic class ObjectReader {\n    private static final Set<String> ALLOWED = Set.of(\"com.example.SafeClass\");\n    public Object read(byte[] data) throws Exception {\n        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data)) {\n            protected Class<?> resolveClass(ObjectStreamClass desc) {\n                if (!ALLOWED.contains(desc.getName())) {\n                    throw new SecurityException(\"Class not allowed\");\n                }\n                return super.resolveClass(desc);\n            }\n        };\n        return ois.readObject();\n    }\n}\n"
+    },
+    "SAMPLE_019": {
+      "vulnerable": "// Variant 2\nimport java.io.*;\npublic class FileService {\n    public String readFile(String path) throws IOException {\n        File f = new File(\"/app/data/\" + path);\n        return new String(Files.readAllBytes(f.toPath()));  // VULN: path traversal\n    }\n}\n",
+      "fixed": "// Variant 2 (Fixed)\nimport java.io.*;\nimport java.nio.file.*;\npublic class FileService {\n    public String readFile(String path) throws IOException {\n        Path base = Paths.get(\"/app/data\").normalize().toAbsolutePath();\n        Path target = base.resolve(path).normalize().toAbsolutePath();\n        if (!target.startsWith(base)) {\n            throw new SecurityException(\"Invalid path\");\n        }\n        return new String(Files.readAllBytes(target));\n    }\n}\n"
+    },
+    "SAMPLE_020": {
+      "vulnerable": "// Variant 2\nimport java.lang.Runtime;\npublic class ShellRunner {\n    public String run(String cmd) throws Exception {\n        Process p = Runtime.getRuntime().exec(cmd);  // VULN: command injection\n        return new String(p.getInputStream().readAllBytes());\n    }\n}\n",
+      "fixed": "// Variant 2 (Fixed)\nimport java.lang.Runtime;\nimport java.util.List;\npublic class ShellRunner {\n    public String run(List<String> cmd) throws Exception {\n        ProcessBuilder pb = new ProcessBuilder(cmd);\n        pb.redirectErrorStream(true);\n        Process p = pb.start();\n        return new String(p.getInputStream().readAllBytes());\n    }\n}\n"
+    },
+    "SAMPLE_021": {
+      "vulnerable": "// Variant 2\nimport javax.xml.parsers.*;\nimport org.w3c.dom.*;\npublic class XMLParser {\n    public Document parse(String xml) throws Exception {\n        DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();\n        DocumentBuilder db = f.newDocumentBuilder();\n        return db.parse(new InputSource(new StringReader(xml)));  // VULN: XXE\n    }\n}\n",
+      "fixed": "// Variant 2 (Fixed)\nimport javax.xml.parsers.*;\nimport org.w3c.dom.*;\npublic class XMLParser {\n    public Document parse(String xml) throws Exception {\n        DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();\n        f.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\", true);\n        f.setFeature(\"http://xml.org/sax/features/external-general-entities\", false);\n        f.setFeature(\"http://xml.org/sax/features/external-parameter-entities\", false);\n        DocumentBuilder db = f.newDocumentBuilder();\n        return db.parse(new InputSource(new StringReader(xml)));\n    }\n}\n"
+    },
+    "SAMPLE_022": {
+      "vulnerable": "// Variant 2\nimport java.net.*;\npublic class URLFetcher {\n    public String fetch(String url) throws Exception {\n        URL u = new URL(url);\n        return new String(u.openStream().readAllBytes());  // VULN: SSRF\n    }\n}\n",
+      "fixed": "// Variant 2 (Fixed)\nimport java.net.*;\nimport java.util.Set;\npublic class URLFetcher {\n    private static final Set<String> ALLOWED = Set.of(\"api.example.com\", \"cdn.example.com\");\n    public String fetch(String urlStr) throws Exception {\n        URL u = new URL(urlStr);\n        if (!ALLOWED.contains(u.getHost())) {\n            throw new SecurityException(\"Host not allowed\");\n        }\n        return new String(u.openStream().readAllBytes());\n    }\n}\n"
+    },
+    "SAMPLE_023": {
+      "vulnerable": "// Variant 2\nimport java.io.*;\npublic class ErrorHandler {\n    public void handle(Exception e, PrintWriter out) {\n        e.printStackTrace(out);  // VULN: info exposure\n    }\n}\n",
+      "fixed": "// Variant 2 (Fixed)\nimport java.io.*;\nimport java.util.logging.*;\npublic class ErrorHandler {\n    private static final Logger LOG = Logger.getLogger(ErrorHandler.class.getName());\n    public void handle(Exception e, PrintWriter out) {\n        LOG.log(Level.SEVERE, \"Error\", e);\n        out.write(\"An error occurred. Please try again later.\");\n    }\n}\n"
+    },
+    "SAMPLE_024": {
+      "vulnerable": "// Variant 2\nimport java.io.*;\npublic class ConfigWriter {\n    public void savePassword(String password) throws IOException {\n        FileWriter fw = new FileWriter(\"config.txt\");\n        fw.write(\"password=\" + password);  // VULN: cleartext storage\n        fw.close();\n    }\n}\n",
+      "fixed": "// Variant 2 (Fixed)\nimport java.io.*;\nimport java.util.Base64;\nimport javax.crypto.Cipher;\nimport javax.crypto.KeyGenerator;\nimport javax.crypto.SecretKey;\npublic class ConfigWriter {\n    public void savePassword(String password) throws Exception {\n        SecretKey key = KeyGenerator.getInstance(\"AES\").generateKey();\n        Cipher cipher = Cipher.getInstance(\"AES\");\n        cipher.init(Cipher.ENCRYPT_MODE, key);\n        byte[] encrypted = cipher.doFinal(password.getBytes());\n        FileWriter fw = new FileWriter(\"config.txt\");\n        fw.write(\"password=\" + Base64.getEncoder().encodeToString(encrypted));\n        fw.close();\n    }\n}\n"
+    },
+    "SAMPLE_025": {
+      "vulnerable": "// Variant 2\nimport javax.crypto.*;\npublic class Crypto {\n    public byte[] encrypt(String data) throws Exception {\n        Cipher c = Cipher.getInstance(\"DES/ECB/PKCS5Padding\");  // VULN: weak algorithm\n        SecretKey key = KeyGenerator.getInstance(\"DES\").generateKey();\n        c.init(Cipher.ENCRYPT_MODE, key);\n        return c.doFinal(data.getBytes());\n    }\n}\n",
+      "fixed": "// Variant 2 (Fixed)\nimport javax.crypto.*;\nimport javax.crypto.spec.GCMParameterSpec;\nimport java.security.SecureRandom;\npublic class Crypto {\n    public byte[] encrypt(String data) throws Exception {\n        Cipher c = Cipher.getInstance(\"AES/GCM/NoPadding\");\n        SecretKey key = KeyGenerator.getInstance(\"AES\").generateKey();\n        byte[] iv = new byte[12];\n        new SecureRandom().nextBytes(iv);\n        c.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(128, iv));\n        return c.doFinal(data.getBytes());\n    }\n}\n"
+    },
+    "SAMPLE_026": {
+      "vulnerable": "// Variant 2\npublic class DiscountController {\n    public double applyDiscount(double price, double discount) {\n        return price * (1 - discount);  // VULN: discount not validated\n    }\n}\n",
+      "fixed": "// Variant 2 (Fixed)\npublic class DiscountController {\n    public double applyDiscount(double price, double discount) {\n        if (discount < 0 || discount > 1) {\n            throw new IllegalArgumentException(\"Invalid discount\");\n        }\n        return price * (1 - discount);\n    }\n}\n"
+    },
+    "SAMPLE_027": {
+      "vulnerable": "// Variant 2\nimport java.io.*;\npublic class UploadServlet {\n    public void saveFile(String filename, InputStream data) throws IOException {\n        FileOutputStream fos = new FileOutputStream(\"/uploads/\" + filename);\n        fos.write(data.readAllBytes());  // VULN: unrestricted upload\n    }\n}\n",
+      "fixed": "// Variant 2 (Fixed)\nimport java.io.*;\nimport java.util.Arrays;\npublic class UploadServlet {\n    private static final String[] ALLOWED = {\".jpg\", \".png\", \".pdf\"};\n    public void saveFile(String filename, InputStream data) throws IOException {\n        String ext = filename.substring(filename.lastIndexOf('.'));\n        if (!Arrays.asList(ALLOWED).contains(ext)) {\n            throw new SecurityException(\"File type not allowed\");\n        }\n        FileOutputStream fos = new FileOutputStream(\"/uploads/\" + filename);\n        fos.write(data.readAllBytes());\n    }\n}\n"
+    },
+    "SAMPLE_028": {
+      "vulnerable": "// Variant 2\nimport javax.script.*;\npublic class RuleEngine {\n    public Object eval(String rule) throws Exception {\n        ScriptEngine engine = new ScriptEngineManager().getEngineByName(\"js\");\n        return engine.eval(rule);  // VULN: code injection\n    }\n}\n",
+      "fixed": "// Variant 2 (Fixed)\nimport javax.script.*;\nimport java.util.Set;\npublic class RuleEngine {\n    private static final Set<String> ALLOWED_OPS = Set.of(\"+\", \"-\", \"*\", \"/\");\n    public Object eval(String rule) throws Exception {\n        if (!rule.matches(\"[0-9+\\-*/\\.() ]+\")) {\n            throw new SecurityException(\"Invalid expression\");\n        }\n        ScriptEngine engine = new ScriptEngineManager().getEngineByName(\"js\");\n        return engine.eval(rule);\n    }\n}\n"
+    },
+    "SAMPLE_029": {
+      "vulnerable": "// Variant 2\npublic class DBConfig {\n    public static final String USERNAME = \"admin\";\n    public static final String PASSWORD = \"password123\";  // VULN: hardcoded\n}\n",
+      "fixed": "// Variant 2 (Fixed)\nimport java.io.*;\nimport java.util.Properties;\npublic class DBConfig {\n    public static String getPassword() throws IOException {\n        Properties props = new Properties();\n        props.load(new FileInputStream(\"db.properties\"));\n        return props.getProperty(\"password\");\n    }\n}\n"
+    },
+    "SAMPLE_030": {
+      "vulnerable": "// Variant 2\npublic class LoginController {\n    public boolean login(String user, String pass) {\n        return checkPassword(user, pass);  // VULN: no rate limiting\n    }\n}\n",
+      "fixed": "// Variant 2 (Fixed)\nimport java.util.Map;\nimport java.util.concurrent.ConcurrentHashMap;\npublic class LoginController {\n    private static final Map<String, Integer> attempts = new ConcurrentHashMap<>();\n    public boolean login(String user, String pass) {\n        int count = attempts.getOrDefault(user, 0);\n        if (count >= 5) {\n            throw new SecurityException(\"Too many attempts\");\n        }\n        attempts.put(user, count + 1);\n        return checkPassword(user, pass);\n    }\n}\n"
+    },
+    "SAMPLE_031": {
+      "vulnerable": "// Variant 3\nimport java.sql.*;\npublic class UserDAO {\n    public User getUser(String username) {\n        String query = \"SELECT * FROM users WHERE name = '\" + username + \"'\";\n        Statement stmt = conn.createStatement();\n        return stmt.executeQuery(query);  // VULN: SQL injection\n    }\n}\n",
+      "fixed": "// Variant 3 (Fixed)\nimport java.sql.*;\npublic class UserDAO {\n    public User getUser(String username) {\n        String query = \"SELECT * FROM users WHERE name = ?\";\n        PreparedStatement pstmt = conn.prepareStatement(query);\n        pstmt.setString(1, username);\n        return pstmt.executeQuery();\n    }\n}\n"
+    },
+    "SAMPLE_032": {
+      "vulnerable": "// Variant 3\nimport javax.servlet.http.*;\npublic class SearchServlet extends HttpServlet {\n    protected void doGet(HttpServletRequest req, HttpServletResponse res) {\n        String q = req.getParameter(\"q\");\n        res.getWriter().write(\"<h1>Results for \" + q + \"</h1>\");  // VULN: XSS\n    }\n}\n",
+      "fixed": "// Variant 3 (Fixed)\nimport javax.servlet.http.*;\nimport org.owasp.encoder.Encode;\npublic class SearchServlet extends HttpServlet {\n    protected void doGet(HttpServletRequest req, HttpServletResponse res) {\n        String q = req.getParameter(\"q\");\n        res.getWriter().write(\"<h1>Results for \" + Encode.forHtml(q) + \"</h1>\");\n    }\n}\n"
+    },
+    "SAMPLE_033": {
+      "vulnerable": "// Variant 3\nimport java.io.*;\npublic class ObjectReader {\n    public Object read(byte[] data) throws Exception {\n        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));\n        return ois.readObject();  // VULN: untrusted deserialization\n    }\n}\n",
+      "fixed": "// Variant 3 (Fixed)\nimport java.io.*;\npublic class ObjectReader {\n    private static final Set<String> ALLOWED = Set.of(\"com.example.SafeClass\");\n    public Object read(byte[] data) throws Exception {\n        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data)) {\n            protected Class<?> resolveClass(ObjectStreamClass desc) {\n                if (!ALLOWED.contains(desc.getName())) {\n                    throw new SecurityException(\"Class not allowed\");\n                }\n                return super.resolveClass(desc);\n            }\n        };\n        return ois.readObject();\n    }\n}\n"
+    },
+    "SAMPLE_034": {
+      "vulnerable": "// Variant 3\nimport java.io.*;\npublic class FileService {\n    public String readFile(String path) throws IOException {\n        File f = new File(\"/app/data/\" + path);\n        return new String(Files.readAllBytes(f.toPath()));  // VULN: path traversal\n    }\n}\n",
+      "fixed": "// Variant 3 (Fixed)\nimport java.io.*;\nimport java.nio.file.*;\npublic class FileService {\n    public String readFile(String path) throws IOException {\n        Path base = Paths.get(\"/app/data\").normalize().toAbsolutePath();\n        Path target = base.resolve(path).normalize().toAbsolutePath();\n        if (!target.startsWith(base)) {\n            throw new SecurityException(\"Invalid path\");\n        }\n        return new String(Files.readAllBytes(target));\n    }\n}\n"
+    },
+    "SAMPLE_035": {
+      "vulnerable": "// Variant 3\nimport java.lang.Runtime;\npublic class ShellRunner {\n    public String run(String cmd) throws Exception {\n        Process p = Runtime.getRuntime().exec(cmd);  // VULN: command injection\n        return new String(p.getInputStream().readAllBytes());\n    }\n}\n",
+      "fixed": "// Variant 3 (Fixed)\nimport java.lang.Runtime;\nimport java.util.List;\npublic class ShellRunner {\n    public String run(List<String> cmd) throws Exception {\n        ProcessBuilder pb = new ProcessBuilder(cmd);\n        pb.redirectErrorStream(true);\n        Process p = pb.start();\n        return new String(p.getInputStream().readAllBytes());\n    }\n}\n"
+    },
+    "SAMPLE_036": {
+      "vulnerable": "// Variant 3\nimport javax.xml.parsers.*;\nimport org.w3c.dom.*;\npublic class XMLParser {\n    public Document parse(String xml) throws Exception {\n        DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();\n        DocumentBuilder db = f.newDocumentBuilder();\n        return db.parse(new InputSource(new StringReader(xml)));  // VULN: XXE\n    }\n}\n",
+      "fixed": "// Variant 3 (Fixed)\nimport javax.xml.parsers.*;\nimport org.w3c.dom.*;\npublic class XMLParser {\n    public Document parse(String xml) throws Exception {\n        DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();\n        f.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\", true);\n        f.setFeature(\"http://xml.org/sax/features/external-general-entities\", false);\n        f.setFeature(\"http://xml.org/sax/features/external-parameter-entities\", false);\n        DocumentBuilder db = f.newDocumentBuilder();\n        return db.parse(new InputSource(new StringReader(xml)));\n    }\n}\n"
+    },
+    "SAMPLE_037": {
+      "vulnerable": "// Variant 3\nimport java.net.*;\npublic class URLFetcher {\n    public String fetch(String url) throws Exception {\n        URL u = new URL(url);\n        return new String(u.openStream().readAllBytes());  // VULN: SSRF\n    }\n}\n",
+      "fixed": "// Variant 3 (Fixed)\nimport java.net.*;\nimport java.util.Set;\npublic class URLFetcher {\n    private static final Set<String> ALLOWED = Set.of(\"api.example.com\", \"cdn.example.com\");\n    public String fetch(String urlStr) throws Exception {\n        URL u = new URL(urlStr);\n        if (!ALLOWED.contains(u.getHost())) {\n            throw new SecurityException(\"Host not allowed\");\n        }\n        return new String(u.openStream().readAllBytes());\n    }\n}\n"
+    },
+    "SAMPLE_038": {
+      "vulnerable": "// Variant 3\nimport java.io.*;\npublic class ErrorHandler {\n    public void handle(Exception e, PrintWriter out) {\n        e.printStackTrace(out);  // VULN: info exposure\n    }\n}\n",
+      "fixed": "// Variant 3 (Fixed)\nimport java.io.*;\nimport java.util.logging.*;\npublic class ErrorHandler {\n    private static final Logger LOG = Logger.getLogger(ErrorHandler.class.getName());\n    public void handle(Exception e, PrintWriter out) {\n        LOG.log(Level.SEVERE, \"Error\", e);\n        out.write(\"An error occurred. Please try again later.\");\n    }\n}\n"
+    },
+    "SAMPLE_039": {
+      "vulnerable": "// Variant 3\nimport java.io.*;\npublic class ConfigWriter {\n    public void savePassword(String password) throws IOException {\n        FileWriter fw = new FileWriter(\"config.txt\");\n        fw.write(\"password=\" + password);  // VULN: cleartext storage\n        fw.close();\n    }\n}\n",
+      "fixed": "// Variant 3 (Fixed)\nimport java.io.*;\nimport java.util.Base64;\nimport javax.crypto.Cipher;\nimport javax.crypto.KeyGenerator;\nimport javax.crypto.SecretKey;\npublic class ConfigWriter {\n    public void savePassword(String password) throws Exception {\n        SecretKey key = KeyGenerator.getInstance(\"AES\").generateKey();\n        Cipher cipher = Cipher.getInstance(\"AES\");\n        cipher.init(Cipher.ENCRYPT_MODE, key);\n        byte[] encrypted = cipher.doFinal(password.getBytes());\n        FileWriter fw = new FileWriter(\"config.txt\");\n        fw.write(\"password=\" + Base64.getEncoder().encodeToString(encrypted));\n        fw.close();\n    }\n}\n"
+    },
+    "SAMPLE_040": {
+      "vulnerable": "// Variant 3\nimport javax.crypto.*;\npublic class Crypto {\n    public byte[] encrypt(String data) throws Exception {\n        Cipher c = Cipher.getInstance(\"DES/ECB/PKCS5Padding\");  // VULN: weak algorithm\n        SecretKey key = KeyGenerator.getInstance(\"DES\").generateKey();\n        c.init(Cipher.ENCRYPT_MODE, key);\n        return c.doFinal(data.getBytes());\n    }\n}\n",
+      "fixed": "// Variant 3 (Fixed)\nimport javax.crypto.*;\nimport javax.crypto.spec.GCMParameterSpec;\nimport java.security.SecureRandom;\npublic class Crypto {\n    public byte[] encrypt(String data) throws Exception {\n        Cipher c = Cipher.getInstance(\"AES/GCM/NoPadding\");\n        SecretKey key = KeyGenerator.getInstance(\"AES\").generateKey();\n        byte[] iv = new byte[12];\n        new SecureRandom().nextBytes(iv);\n        c.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(128, iv));\n        return c.doFinal(data.getBytes());\n    }\n}\n"
+    },
+    "SAMPLE_041": {
+      "vulnerable": "// Variant 3\npublic class DiscountController {\n    public double applyDiscount(double price, double discount) {\n        return price * (1 - discount);  // VULN: discount not validated\n    }\n}\n",
+      "fixed": "// Variant 3 (Fixed)\npublic class DiscountController {\n    public double applyDiscount(double price, double discount) {\n        if (discount < 0 || discount > 1) {\n            throw new IllegalArgumentException(\"Invalid discount\");\n        }\n        return price * (1 - discount);\n    }\n}\n"
+    },
+    "SAMPLE_042": {
+      "vulnerable": "// Variant 3\nimport java.io.*;\npublic class UploadServlet {\n    public void saveFile(String filename, InputStream data) throws IOException {\n        FileOutputStream fos = new FileOutputStream(\"/uploads/\" + filename);\n        fos.write(data.readAllBytes());  // VULN: unrestricted upload\n    }\n}\n",
+      "fixed": "// Variant 3 (Fixed)\nimport java.io.*;\nimport java.util.Arrays;\npublic class UploadServlet {\n    private static final String[] ALLOWED = {\".jpg\", \".png\", \".pdf\"};\n    public void saveFile(String filename, InputStream data) throws IOException {\n        String ext = filename.substring(filename.lastIndexOf('.'));\n        if (!Arrays.asList(ALLOWED).contains(ext)) {\n            throw new SecurityException(\"File type not allowed\");\n        }\n        FileOutputStream fos = new FileOutputStream(\"/uploads/\" + filename);\n        fos.write(data.readAllBytes());\n    }\n}\n"
+    },
+    "SAMPLE_043": {
+      "vulnerable": "// Variant 3\nimport javax.script.*;\npublic class RuleEngine {\n    public Object eval(String rule) throws Exception {\n        ScriptEngine engine = new ScriptEngineManager().getEngineByName(\"js\");\n        return engine.eval(rule);  // VULN: code injection\n    }\n}\n",
+      "fixed": "// Variant 3 (Fixed)\nimport javax.script.*;\nimport java.util.Set;\npublic class RuleEngine {\n    private static final Set<String> ALLOWED_OPS = Set.of(\"+\", \"-\", \"*\", \"/\");\n    public Object eval(String rule) throws Exception {\n        if (!rule.matches(\"[0-9+\\-*/\\.() ]+\")) {\n            throw new SecurityException(\"Invalid expression\");\n        }\n        ScriptEngine engine = new ScriptEngineManager().getEngineByName(\"js\");\n        return engine.eval(rule);\n    }\n}\n"
+    },
+    "SAMPLE_044": {
+      "vulnerable": "// Variant 3\npublic class DBConfig {\n    public static final String USERNAME = \"admin\";\n    public static final String PASSWORD = \"password123\";  // VULN: hardcoded\n}\n",
+      "fixed": "// Variant 3 (Fixed)\nimport java.io.*;\nimport java.util.Properties;\npublic class DBConfig {\n    public static String getPassword() throws IOException {\n        Properties props = new Properties();\n        props.load(new FileInputStream(\"db.properties\"));\n        return props.getProperty(\"password\");\n    }\n}\n"
+    },
+    "SAMPLE_045": {
+      "vulnerable": "// Variant 3\npublic class LoginController {\n    public boolean login(String user, String pass) {\n        return checkPassword(user, pass);  // VULN: no rate limiting\n    }\n}\n",
+      "fixed": "// Variant 3 (Fixed)\nimport java.util.Map;\nimport java.util.concurrent.ConcurrentHashMap;\npublic class LoginController {\n    private static final Map<String, Integer> attempts = new ConcurrentHashMap<>();\n    public boolean login(String user, String pass) {\n        int count = attempts.getOrDefault(user, 0);\n        if (count >= 5) {\n            throw new SecurityException(\"Too many attempts\");\n        }\n        attempts.put(user, count + 1);\n        return checkPassword(user, pass);\n    }\n}\n"
+    },
+    "SAMPLE_046": {
+      "vulnerable": "// Variant 4\nimport java.sql.*;\npublic class UserDAO {\n    public User getUser(String username) {\n        String query = \"SELECT * FROM users WHERE name = '\" + username + \"'\";\n        Statement stmt = conn.createStatement();\n        return stmt.executeQuery(query);  // VULN: SQL injection\n    }\n}\n",
+      "fixed": "// Variant 4 (Fixed)\nimport java.sql.*;\npublic class UserDAO {\n    public User getUser(String username) {\n        String query = \"SELECT * FROM users WHERE name = ?\";\n        PreparedStatement pstmt = conn.prepareStatement(query);\n        pstmt.setString(1, username);\n        return pstmt.executeQuery();\n    }\n}\n"
+    },
+    "SAMPLE_047": {
+      "vulnerable": "// Variant 4\nimport javax.servlet.http.*;\npublic class SearchServlet extends HttpServlet {\n    protected void doGet(HttpServletRequest req, HttpServletResponse res) {\n        String q = req.getParameter(\"q\");\n        res.getWriter().write(\"<h1>Results for \" + q + \"</h1>\");  // VULN: XSS\n    }\n}\n",
+      "fixed": "// Variant 4 (Fixed)\nimport javax.servlet.http.*;\nimport org.owasp.encoder.Encode;\npublic class SearchServlet extends HttpServlet {\n    protected void doGet(HttpServletRequest req, HttpServletResponse res) {\n        String q = req.getParameter(\"q\");\n        res.getWriter().write(\"<h1>Results for \" + Encode.forHtml(q) + \"</h1>\");\n    }\n}\n"
+    },
+    "SAMPLE_048": {
+      "vulnerable": "// Variant 4\nimport java.io.*;\npublic class ObjectReader {\n    public Object read(byte[] data) throws Exception {\n        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));\n        return ois.readObject();  // VULN: untrusted deserialization\n    }\n}\n",
+      "fixed": "// Variant 4 (Fixed)\nimport java.io.*;\npublic class ObjectReader {\n    private static final Set<String> ALLOWED = Set.of(\"com.example.SafeClass\");\n    public Object read(byte[] data) throws Exception {\n        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data)) {\n            protected Class<?> resolveClass(ObjectStreamClass desc) {\n                if (!ALLOWED.contains(desc.getName())) {\n                    throw new SecurityException(\"Class not allowed\");\n                }\n                return super.resolveClass(desc);\n            }\n        };\n        return ois.readObject();\n    }\n}\n"
+    },
+    "SAMPLE_049": {
+      "vulnerable": "// Variant 4\nimport java.io.*;\npublic class FileService {\n    public String readFile(String path) throws IOException {\n        File f = new File(\"/app/data/\" + path);\n        return new String(Files.readAllBytes(f.toPath()));  // VULN: path traversal\n    }\n}\n",
+      "fixed": "// Variant 4 (Fixed)\nimport java.io.*;\nimport java.nio.file.*;\npublic class FileService {\n    public String readFile(String path) throws IOException {\n        Path base = Paths.get(\"/app/data\").normalize().toAbsolutePath();\n        Path target = base.resolve(path).normalize().toAbsolutePath();\n        if (!target.startsWith(base)) {\n            throw new SecurityException(\"Invalid path\");\n        }\n        return new String(Files.readAllBytes(target));\n    }\n}\n"
+    },
+    "SAMPLE_050": {
+      "vulnerable": "// Variant 4\nimport java.lang.Runtime;\npublic class ShellRunner {\n    public String run(String cmd) throws Exception {\n        Process p = Runtime.getRuntime().exec(cmd);  // VULN: command injection\n        return new String(p.getInputStream().readAllBytes());\n    }\n}\n",
+      "fixed": "// Variant 4 (Fixed)\nimport java.lang.Runtime;\nimport java.util.List;\npublic class ShellRunner {\n    public String run(List<String> cmd) throws Exception {\n        ProcessBuilder pb = new ProcessBuilder(cmd);\n        pb.redirectErrorStream(true);\n        Process p = pb.start();\n        return new String(p.getInputStream().readAllBytes());\n    }\n}\n"
+    }
+  }
+}

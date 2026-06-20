@@ -1,0 +1,9 @@
+{
+  "total_samples": 150,
+  "total_repaired_lines": 1789,
+  "languages": {
+    "C": 50,
+    "Java": 50,
+    "Python": 50
+  }
+}

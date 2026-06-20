@@ -1,0 +1,50 @@
+{
+  "role": "你是一位拥有20年经验的代码安全审计专家，精通Python Web应用、数据科学与脚本安全",
+  "task": "分析以下Python代码，识别所有安全漏洞，给出详细的修复方案",
+  "context": "传统程序分析结果：通过污点追踪发现用户输入直接流入os.system/eval/exec；通过数据流分析发现外部输入未校验即用于文件路径拼接；通过控制流分析发现pickle.loads反序列化不可信数据",
+  "format": "漏洞位置（行号）| 漏洞类型 | CWE编号 | 风险等级 | 修复建议 | 修复后代码片段",
+  "examples": [
+    {
+      "code": "import os\\n\\ndef run_user_cmd(cmd):\\n    os.system(cmd)\\n",
+      "analysis": "污点追踪：cmd为外部输入，直接流入os.system（第4行）→ 攻击者可注入'; rm -rf /'等命令；数据流：污点从source到sink无净化，无白名单校验",
+      "findings": [
+        {
+          "line": 4,
+          "type": "OS Command Injection",
+          "cwe": "CWE-78",
+          "severity": "高风险",
+          "fix": "使用subprocess.run配合shlex.split，并对参数进行白名单校验，禁止shell=True"
+        }
+      ],
+      "fixed_code": "import shlex, subprocess\\n\\ndef run_user_cmd(cmd):\\n    args = shlex.split(cmd)\\n    if any(c in args for c in [';', '|', '&', '$', '`']):\\n        raise ValueError(\"Invalid characters\")\\n    subprocess.run(args, check=True)\\n"
+    },
+    {
+      "code": "import sqlite3\\n\\ndef get_user(username):\\n    conn = sqlite3.connect('db.sqlite')\\n    cursor = conn.cursor()\\n    cursor.execute(f\"SELECT * FROM users WHERE username = '{username}'\")\\n    return cursor.fetchall()\\n",
+      "analysis": "污点追踪：username为外部输入，直接拼接进SQL语句（第6行）→ 攻击者可注入' OR '1'='1' --；数据流：f-string拼接导致SQL Injection",
+      "findings": [
+        {
+          "line": 6,
+          "type": "SQL Injection",
+          "cwe": "CWE-89",
+          "severity": "高风险",
+          "fix": "使用参数化查询（placeholder = ?），禁止字符串拼接SQL"
+        }
+      ],
+      "fixed_code": "import sqlite3\\n\\ndef get_user(username):\\n    conn = sqlite3.connect('db.sqlite')\\n    cursor = conn.cursor()\\n    cursor.execute(\"SELECT * FROM users WHERE username = ?\", (username,))\\n    return cursor.fetchall()\\n"
+    },
+    {
+      "code": "import pickle\\n\\ndef load_object(data):\\n    return pickle.loads(data)\\n",
+      "analysis": "控制流分析：pickle.loads反序列化任意字节流（第4行）→ 攻击者可构造恶意pickle payload实现RCE；数据流：外部输入直接进入pickle.loads，无任何校验",
+      "findings": [
+        {
+          "line": 4,
+          "type": "Deserialization of Untrusted Data",
+          "cwe": "CWE-502",
+          "severity": "高风险",
+          "fix": "使用json.loads替代pickle；若必须使用pickle，则使用HMAC签名验证数据完整性"
+        }
+      ],
+      "fixed_code": "import json\\n\\ndef load_object(data):\\n    return json.loads(data)\\n"
+    }
+  ]
+}

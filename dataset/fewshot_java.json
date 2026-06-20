@@ -1,0 +1,50 @@
+{
+  "role": "你是一位拥有20年经验的代码安全审计专家，精通Java Web应用安全与框架漏洞",
+  "task": "分析以下Java代码，识别所有安全漏洞，给出详细的修复方案",
+  "context": "传统程序分析结果：通过污点追踪发现HTTP请求参数直接流入SQL拼接语句；通过数据流分析发现外部输入未过滤即输出到前端页面；通过控制流分析发现反序列化操作未校验类名",
+  "format": "漏洞位置（行号）| 漏洞类型 | CWE编号 | 风险等级 | 修复建议 | 修复后代码片段",
+  "examples": [
+    {
+      "code": "public User getUser(String username) {\\n    String query = \"SELECT * FROM users WHERE name = '" + username + \"'\";\\n    Statement stmt = conn.createStatement();\\n    return stmt.executeQuery(query);\\n}",
+      "analysis": "污点追踪：username为HTTP请求参数（污点源），直接拼接进SQL语句（第2行）→ 攻击者可注入' OR '1'='1等恶意SQL；数据流：污点从source到sink无净化",
+      "findings": [
+        {
+          "line": 2,
+          "type": "SQL Injection",
+          "cwe": "CWE-89",
+          "severity": "高风险",
+          "fix": "使用PreparedStatement参数化查询，禁止字符串拼接SQL"
+        }
+      ],
+      "fixed_code": "public User getUser(String username) {\\n    String query = \"SELECT * FROM users WHERE name = ?\";\\n    PreparedStatement pstmt = conn.prepareStatement(query);\\n    pstmt.setString(1, username);\\n    return pstmt.executeQuery();\\n}"
+    },
+    {
+      "code": "protected void doGet(HttpServletRequest req, HttpServletResponse res) {\\n    String q = req.getParameter(\"q\");\\n    res.getWriter().write(\"<h1>Results for \" + q + \"</h1>\");\\n}",
+      "analysis": "污点追踪：q为HTTP请求参数，直接输出到HTML页面（第3行）→ 攻击者可注入<script>alert(1)</script>；数据流：未经编码/转义即进入响应体",
+      "findings": [
+        {
+          "line": 3,
+          "type": "Cross-site Scripting (XSS)",
+          "cwe": "CWE-79",
+          "severity": "高风险",
+          "fix": "使用OWASP Java Encoder或JSTL c:out标签对输出进行HTML编码"
+        }
+      ],
+      "fixed_code": "protected void doGet(HttpServletRequest req, HttpServletResponse res) {\\n    String q = req.getParameter(\"q\");\\n    res.getWriter().write(\"<h1>Results for \" + Encode.forHtml(q) + \"</h1>\");\\n}"
+    },
+    {
+      "code": "public Object read(byte[] data) throws Exception {\\n    ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));\\n    return ois.readObject();\\n}",
+      "analysis": "控制流分析：readObject()反序列化任意字节流（第3行）→ 若data来自不可信来源，可导致RCE（如利用CommonsCollections链）；数据流：外部输入直接进入ObjectInputStream",
+      "findings": [
+        {
+          "line": 3,
+          "type": "Deserialization of Untrusted Data",
+          "cwe": "CWE-502",
+          "severity": "高风险",
+          "fix": "使用白名单校验resolveClass，仅允许反序列化预定义的安全类；或改用JSON等安全序列化格式"
+        }
+      ],
+      "fixed_code": "public Object read(byte[] data) throws Exception {\\n    ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data)) {\\n        protected Class<?> resolveClass(ObjectStreamClass desc) {\\n            if (!ALLOWED.contains(desc.getName())) throw new SecurityException();\\n            return super.resolveClass(desc);\\n        }\\n    };\\n    return ois.readObject();\\n}"
+    }
+  ]
+}

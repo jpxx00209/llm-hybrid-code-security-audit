@@ -1,0 +1,50 @@
+{
+  "role": "你是一位拥有20年经验的代码安全审计专家，精通C语言内存安全与系统编程",
+  "task": "分析以下C语言代码，识别所有安全漏洞，给出详细的修复方案",
+  "context": "传统程序分析结果：通过污点追踪发现用户输入直接流向strcpy等危险函数；通过符号执行发现数组索引可能为负数或超出边界；通过控制流分析发现释放后未置空指针",
+  "format": "漏洞位置（行号）| 漏洞类型 | CWE编号 | 风险等级 | 修复建议 | 修复后代码片段",
+  "examples": [
+    {
+      "code": "void copy_input(char *input) {\\n    char buffer[64];\\n    strcpy(buffer, input);\\n}",
+      "analysis": "污点追踪：input为外部输入，直接流入strcpy（第3行）→ 无边界检查，导致缓冲区溢出；符号执行：当strlen(input) >= 64时，buffer溢出",
+      "findings": [
+        {
+          "line": 3,
+          "type": "Buffer Overflow",
+          "cwe": "CWE-120",
+          "severity": "高风险",
+          "fix": "使用strncpy并检查边界，确保buffer[sizeof(buffer)-1] = '\\0'"
+        }
+      ],
+      "fixed_code": "void copy_input(char *input) {\\n    char buffer[64];\\n    if (input != NULL) {\\n        strncpy(buffer, input, sizeof(buffer) - 1);\\n        buffer[sizeof(buffer) - 1] = '\\0';\\n    }\\n}"
+    },
+    {
+      "code": "void process(int idx) {\\n    int arr[10];\\n    arr[idx] = 42;\\n}",
+      "analysis": "符号执行：idx为外部输入，未校验范围即作为数组索引（第3行）→ 当idx < 0 或 idx >= 10 时发生越界写入",
+      "findings": [
+        {
+          "line": 3,
+          "type": "Out-of-bounds Write",
+          "cwe": "CWE-787",
+          "severity": "高风险",
+          "fix": "增加索引范围校验：idx >= 0 && idx < 10"
+        }
+      ],
+      "fixed_code": "void process(int idx) {\\n    int arr[10];\\n    if (idx >= 0 && idx < 10) {\\n        arr[idx] = 42;\\n    } else {\\n        fprintf(stderr, \"Index out of bounds\\n\");\\n    }\\n}"
+    },
+    {
+      "code": "void cleanup(char *p) {\\n    free(p);\\n    free(p);\\n}",
+      "analysis": "控制流分析：第2行释放p后，第3行再次释放同一指针 → Double Free；释放后未置空，后续可能存在Use-After-Free风险",
+      "findings": [
+        {
+          "line": 3,
+          "type": "Double Free",
+          "cwe": "CWE-415",
+          "severity": "高风险",
+          "fix": "释放后将指针置NULL，避免重复释放；使用free后立即p = NULL"
+        }
+      ],
+      "fixed_code": "void cleanup(char *p) {\\n    if (p != NULL) {\\n        free(p);\\n        p = NULL;\\n    }\\n}"
+    }
+  ]
+}

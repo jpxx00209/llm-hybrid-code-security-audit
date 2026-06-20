@@ -1,0 +1,102 @@
+[
+  {
+    "id": "PYTHON_SAMPLE_001",
+    "language": "python",
+    "cwe": "CWE-78",
+    "vuln_type": "OS Command Injection",
+    "description": "演示 cmd_injection 漏洞模式",
+    "vuln_code": "import os\n\ndef run_user_cmd(cmd):\n    os.system(cmd)  # VULN: command injection\n",
+    "fixed_code": "import shlex\nimport subprocess\n\ndef run_user_cmd(cmd):\n    args = shlex.split(cmd)\n    if any(c in args for c in [';', '|', '&', '$', '`']):\n        r",
+    "text": "OS Command Injection CWE-78 演示 cmd_injection 漏洞模式 import os\n\ndef run_user_cmd(cmd):\n    os.system(cmd)  # VULN: command injection\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_002",
+    "language": "python",
+    "cwe": "CWE-89",
+    "vuln_type": "SQL Injection",
+    "description": "演示 sql_injection 漏洞模式",
+    "vuln_code": "import sqlite3\n\ndef get_user(username):\n    conn = sqlite3.connect('db.sqlite')\n    cursor = conn.cursor()\n    cursor.execute(f\"SELECT * FROM users WH",
+    "fixed_code": "import sqlite3\n\ndef get_user(username):\n    conn = sqlite3.connect('db.sqlite')\n    cursor = conn.cursor()\n    cursor.execute(\"SELECT * FROM users WHE",
+    "text": "SQL Injection CWE-89 演示 sql_injection 漏洞模式 import sqlite3\n\ndef get_user(username):\n    conn = sqlite3.connect('db.sqlite')\n    cursor = conn.cursor()\n    cursor.execute(f\"SELECT * FROM users WHERE username = '{username}'\")\n    return cursor.fetchall()  # VULN: SQL injection\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_003",
+    "language": "python",
+    "cwe": "CWE-22",
+    "vuln_type": "Path Traversal",
+    "description": "演示 path_traversal 漏洞模式",
+    "vuln_code": "def read_file(filename):\n    with open(f\"/data/{filename}\", \"r\") as f:\n        return f.read()  # VULN: path traversal\n",
+    "fixed_code": "import os\n\ndef read_file(filename):\n    base = os.path.abspath(\"/data\")\n    target = os.path.abspath(os.path.join(base, filename))\n    if not target.s",
+    "text": "Path Traversal CWE-22 演示 path_traversal 漏洞模式 def read_file(filename):\n    with open(f\"/data/{filename}\", \"r\") as f:\n        return f.read()  # VULN: path traversal\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_004",
+    "language": "python",
+    "cwe": "CWE-502",
+    "vuln_type": "Deserialization of Untrusted Data",
+    "description": "演示 pickle_deser 漏洞模式",
+    "vuln_code": "import pickle\n\ndef load_object(data):\n    return pickle.loads(data)  # VULN: arbitrary deserialization\n",
+    "fixed_code": "import json\n\ndef load_object(data):\n    return json.loads(data)  # FIX: use safe serialization\n",
+    "text": "Deserialization of Untrusted Data CWE-502 演示 pickle_deser 漏洞模式 import pickle\n\ndef load_object(data):\n    return pickle.loads(data)  # VULN: arbitrary deserialization\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_005",
+    "language": "python",
+    "cwe": "CWE-917",
+    "vuln_type": "Expression Language Injection",
+    "description": "演示 eval_injection 漏洞模式",
+    "vuln_code": "def calculate(expr):\n    return eval(expr)  # VULN: arbitrary code execution\n",
+    "fixed_code": "import ast\nimport operator\n\nOPS = {\n    ast.Add: operator.add,\n    ast.Sub: operator.sub,\n    ast.Mult: operator.mul,\n    ast.Div: operator.truediv,\n}",
+    "text": "Expression Language Injection CWE-917 演示 eval_injection 漏洞模式 def calculate(expr):\n    return eval(expr)  # VULN: arbitrary code execution\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_006",
+    "language": "python",
+    "cwe": "CWE-20",
+    "vuln_type": "Improper Input Validation",
+    "description": "演示 input_validation 漏洞模式",
+    "vuln_code": "def process_age(age):\n    return int(age) * 12  # VULN: no validation\n",
+    "fixed_code": "def process_age(age):\n    try:\n        age = int(age)\n        if age < 0 or age > 150:\n            raise ValueError(\"Invalid age\")\n        return age ",
+    "text": "Improper Input Validation CWE-20 演示 input_validation 漏洞模式 def process_age(age):\n    return int(age) * 12  # VULN: no validation\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_007",
+    "language": "python",
+    "cwe": "CWE-200",
+    "vuln_type": "Information Exposure",
+    "description": "演示 info_exposure 漏洞模式",
+    "vuln_code": "from flask import Flask\napp = Flask(__name__)\n\n@app.errorhandler(500)\ndef handle_error(e):\n    return str(e), 500  # VULN: exposes stack trace\n",
+    "fixed_code": "from flask import Flask\nimport logging\napp = Flask(__name__)\n\n@app.errorhandler(500)\ndef handle_error(e):\n    app.logger.error(str(e))\n    return \"Int",
+    "text": "Information Exposure CWE-200 演示 info_exposure 漏洞模式 from flask import Flask\napp = Flask(__name__)\n\n@app.errorhandler(500)\ndef handle_error(e):\n    return str(e), 500  # VULN: exposes stack trace\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_008",
+    "language": "python",
+    "cwe": "CWE-295",
+    "vuln_type": "Improper Certificate Validation",
+    "description": "演示 cert_validation 漏洞模式",
+    "vuln_code": "import requests\n\ndef fetch(url):\n    return requests.get(url, verify=False)  # VULN: no cert validation\n",
+    "fixed_code": "import requests\n\ndef fetch(url):\n    return requests.get(url, verify=True)\n",
+    "text": "Improper Certificate Validation CWE-295 演示 cert_validation 漏洞模式 import requests\n\ndef fetch(url):\n    return requests.get(url, verify=False)  # VULN: no cert validation\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_009",
+    "language": "python",
+    "cwe": "CWE-532",
+    "vuln_type": "Insertion of Sensitive Information into Log File",
+    "description": "演示 log_exposure 漏洞模式",
+    "vuln_code": "import logging\n\ndef log_user(user):\n    logging.info(f\"User login: {user.password}\")  # VULN: sensitive info in log\n",
+    "fixed_code": "import logging\n\ndef log_user(user):\n    logging.info(f\"User login: {user.username}\")\n",
+    "text": "Insertion of Sensitive Information into Log File CWE-532 演示 log_exposure 漏洞模式 import logging\n\ndef log_user(user):\n    logging.info(f\"User login: {user.password}\")  # VULN: sensitive info in log\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_010",
+    "language": "python",
+    "cwe": "CWE-377",
+    "vuln_type": "Insecure Temporary File",
+    "description": "演示 tmp_file 漏洞模式",
+    "vuln_code": "import os\n\ndef create_temp(suffix):\n    path = f\"/tmp/file{suffix}\"\n    open(path, \"w\").close()  # VULN: predictable temp file\n    return path\n",
+    "fixed_code": "import tempfile\n\ndef create_temp(suffix):\n    fd, path = tempfile.mkstemp(suffix=suffix)\n    os.close(fd)\n    return path\n",
+    "text": "Insecure Temporary File CWE-377 演示 tmp_file 漏洞模式 import os\n\ndef create_temp(suffix):\n    path = f\"/tmp/file{suffix}\"\n    open(path, \"w\").close()  # VULN: predictable temp file\n    return path\n"
+  }
+]

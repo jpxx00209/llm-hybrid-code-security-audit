@@ -1,0 +1,102 @@
+[
+  {
+    "id": "PYTHON_SAMPLE_041",
+    "language": "python",
+    "cwe": "CWE-94",
+    "vuln_type": "Code Injection",
+    "description": "演示 exec_injection 漏洞模式",
+    "vuln_code": "// Variant 3\ndef execute_code(code):\n    exec(code)  # VULN: arbitrary code execution\n",
+    "fixed_code": "// Variant 3 (Fixed)\nimport ast\n\nALLOWED_NODES = {ast.Expression, ast.BinOp, ast.Num, ast.Add, ast.Sub, ast.Mult, ast.Div}\n\ndef execute_code(code):\n  ",
+    "text": "Code Injection CWE-94 演示 exec_injection 漏洞模式 // Variant 3\ndef execute_code(code):\n    exec(code)  # VULN: arbitrary code execution\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_042",
+    "language": "python",
+    "cwe": "CWE-798",
+    "vuln_type": "Use of Hard-coded Credentials",
+    "description": "演示 hardcoded_creds 漏洞模式",
+    "vuln_code": "// Variant 3\nAPI_KEY = \"sk-1234567890abcdef\"  # VULN: hardcoded credential\n\ndef authenticate():\n    headers = {\"Authorization\": API_KEY}\n    return he",
+    "fixed_code": "// Variant 3 (Fixed)\nimport os\n\nAPI_KEY = os.getenv(\"API_KEY\")  # FIX: load from environment\n\ndef authenticate():\n    if not API_KEY:\n        raise Va",
+    "text": "Use of Hard-coded Credentials CWE-798 演示 hardcoded_creds 漏洞模式 // Variant 3\nAPI_KEY = \"sk-1234567890abcdef\"  # VULN: hardcoded credential\n\ndef authenticate():\n    headers = {\"Authorization\": API_KEY}\n    return headers\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_043",
+    "language": "python",
+    "cwe": "CWE-862",
+    "vuln_type": "Missing Authorization",
+    "description": "演示 missing_auth 漏洞模式",
+    "vuln_code": "// Variant 3\nfrom flask import Flask, request\napp = Flask(__name__)\n\n@app.route(\"/admin\")\ndef admin_panel():\n    return \"Admin Dashboard\"  # VULN: mis",
+    "fixed_code": "// Variant 3 (Fixed)\nfrom flask import Flask, request, abort\napp = Flask(__name__)\n\n@app.route(\"/admin\")\ndef admin_panel():\n    token = request.header",
+    "text": "Missing Authorization CWE-862 演示 missing_auth 漏洞模式 // Variant 3\nfrom flask import Flask, request\napp = Flask(__name__)\n\n@app.route(\"/admin\")\ndef admin_panel():\n    return \"Admin Dashboard\"  # VULN: missing authorization\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_044",
+    "language": "python",
+    "cwe": "CWE-918",
+    "vuln_type": "Server-Side Request Forgery (SSRF)",
+    "description": "演示 ssrf 漏洞模式",
+    "vuln_code": "// Variant 3\nimport urllib.request\n\ndef fetch_url(url):\n    return urllib.request.urlopen(url).read()  # VULN: SSRF\n",
+    "fixed_code": "// Variant 3 (Fixed)\nimport urllib.request\nfrom urllib.parse import urlparse\n\nALLOWED_HOSTS = {\"api.example.com\", \"cdn.example.com\"}\n\ndef fetch_url(ur",
+    "text": "Server-Side Request Forgery (SSRF) CWE-918 演示 ssrf 漏洞模式 // Variant 3\nimport urllib.request\n\ndef fetch_url(url):\n    return urllib.request.urlopen(url).read()  # VULN: SSRF\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_045",
+    "language": "python",
+    "cwe": "CWE-116",
+    "vuln_type": "Improper Encoding or Escaping",
+    "description": "演示 improper_encoding 漏洞模式",
+    "vuln_code": "// Variant 3\nfrom flask import Flask, request, make_response\napp = Flask(__name__)\n\n@app.route(\"/echo\")\ndef echo():\n    name = request.args.get(\"name\"",
+    "fixed_code": "// Variant 3 (Fixed)\nfrom flask import Flask, request, make_response\nfrom html import escape\napp = Flask(__name__)\n\n@app.route(\"/echo\")\ndef echo():\n  ",
+    "text": "Improper Encoding or Escaping CWE-116 演示 improper_encoding 漏洞模式 // Variant 3\nfrom flask import Flask, request, make_response\napp = Flask(__name__)\n\n@app.route(\"/echo\")\ndef echo():\n    name = request.args.get(\"name\")\n    return f\"<div>{name}</div>\"  # VULN: improper encoding\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_046",
+    "language": "python",
+    "cwe": "CWE-78",
+    "vuln_type": "OS Command Injection",
+    "description": "演示 cmd_injection 漏洞模式",
+    "vuln_code": "// Variant 4\nimport os\n\ndef run_user_cmd(cmd):\n    os.system(cmd)  # VULN: command injection\n",
+    "fixed_code": "// Variant 4 (Fixed)\nimport shlex\nimport subprocess\n\ndef run_user_cmd(cmd):\n    args = shlex.split(cmd)\n    if any(c in args for c in [';', '|', '&', ",
+    "text": "OS Command Injection CWE-78 演示 cmd_injection 漏洞模式 // Variant 4\nimport os\n\ndef run_user_cmd(cmd):\n    os.system(cmd)  # VULN: command injection\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_047",
+    "language": "python",
+    "cwe": "CWE-89",
+    "vuln_type": "SQL Injection",
+    "description": "演示 sql_injection 漏洞模式",
+    "vuln_code": "// Variant 4\nimport sqlite3\n\ndef get_user(username):\n    conn = sqlite3.connect('db.sqlite')\n    cursor = conn.cursor()\n    cursor.execute(f\"SELECT * ",
+    "fixed_code": "// Variant 4 (Fixed)\nimport sqlite3\n\ndef get_user(username):\n    conn = sqlite3.connect('db.sqlite')\n    cursor = conn.cursor()\n    cursor.execute(\"SE",
+    "text": "SQL Injection CWE-89 演示 sql_injection 漏洞模式 // Variant 4\nimport sqlite3\n\ndef get_user(username):\n    conn = sqlite3.connect('db.sqlite')\n    cursor = conn.cursor()\n    cursor.execute(f\"SELECT * FROM users WHERE username = '{username}'\")\n    return cursor.fetchall()  # VULN: SQL injection\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_048",
+    "language": "python",
+    "cwe": "CWE-22",
+    "vuln_type": "Path Traversal",
+    "description": "演示 path_traversal 漏洞模式",
+    "vuln_code": "// Variant 4\ndef read_file(filename):\n    with open(f\"/data/{filename}\", \"r\") as f:\n        return f.read()  # VULN: path traversal\n",
+    "fixed_code": "// Variant 4 (Fixed)\nimport os\n\ndef read_file(filename):\n    base = os.path.abspath(\"/data\")\n    target = os.path.abspath(os.path.join(base, filename)",
+    "text": "Path Traversal CWE-22 演示 path_traversal 漏洞模式 // Variant 4\ndef read_file(filename):\n    with open(f\"/data/{filename}\", \"r\") as f:\n        return f.read()  # VULN: path traversal\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_049",
+    "language": "python",
+    "cwe": "CWE-502",
+    "vuln_type": "Deserialization of Untrusted Data",
+    "description": "演示 pickle_deser 漏洞模式",
+    "vuln_code": "// Variant 4\nimport pickle\n\ndef load_object(data):\n    return pickle.loads(data)  # VULN: arbitrary deserialization\n",
+    "fixed_code": "// Variant 4 (Fixed)\nimport json\n\ndef load_object(data):\n    return json.loads(data)  # FIX: use safe serialization\n",
+    "text": "Deserialization of Untrusted Data CWE-502 演示 pickle_deser 漏洞模式 // Variant 4\nimport pickle\n\ndef load_object(data):\n    return pickle.loads(data)  # VULN: arbitrary deserialization\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_050",
+    "language": "python",
+    "cwe": "CWE-917",
+    "vuln_type": "Expression Language Injection",
+    "description": "演示 eval_injection 漏洞模式",
+    "vuln_code": "// Variant 4\ndef calculate(expr):\n    return eval(expr)  # VULN: arbitrary code execution\n",
+    "fixed_code": "// Variant 4 (Fixed)\nimport ast\nimport operator\n\nOPS = {\n    ast.Add: operator.add,\n    ast.Sub: operator.sub,\n    ast.Mult: operator.mul,\n    ast.Div",
+    "text": "Expression Language Injection CWE-917 演示 eval_injection 漏洞模式 // Variant 4\ndef calculate(expr):\n    return eval(expr)  # VULN: arbitrary code execution\n"
+  }
+]

@@ -1,0 +1,102 @@
+[
+  {
+    "id": "PYTHON_SAMPLE_021",
+    "language": "python",
+    "cwe": "CWE-20",
+    "vuln_type": "Improper Input Validation",
+    "description": "演示 input_validation 漏洞模式",
+    "vuln_code": "// Variant 2\ndef process_age(age):\n    return int(age) * 12  # VULN: no validation\n",
+    "fixed_code": "// Variant 2 (Fixed)\ndef process_age(age):\n    try:\n        age = int(age)\n        if age < 0 or age > 150:\n            raise ValueError(\"Invalid age\"",
+    "text": "Improper Input Validation CWE-20 演示 input_validation 漏洞模式 // Variant 2\ndef process_age(age):\n    return int(age) * 12  # VULN: no validation\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_022",
+    "language": "python",
+    "cwe": "CWE-200",
+    "vuln_type": "Information Exposure",
+    "description": "演示 info_exposure 漏洞模式",
+    "vuln_code": "// Variant 2\nfrom flask import Flask\napp = Flask(__name__)\n\n@app.errorhandler(500)\ndef handle_error(e):\n    return str(e), 500  # VULN: exposes stack ",
+    "fixed_code": "// Variant 2 (Fixed)\nfrom flask import Flask\nimport logging\napp = Flask(__name__)\n\n@app.errorhandler(500)\ndef handle_error(e):\n    app.logger.error(st",
+    "text": "Information Exposure CWE-200 演示 info_exposure 漏洞模式 // Variant 2\nfrom flask import Flask\napp = Flask(__name__)\n\n@app.errorhandler(500)\ndef handle_error(e):\n    return str(e), 500  # VULN: exposes stack trace\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_023",
+    "language": "python",
+    "cwe": "CWE-295",
+    "vuln_type": "Improper Certificate Validation",
+    "description": "演示 cert_validation 漏洞模式",
+    "vuln_code": "// Variant 2\nimport requests\n\ndef fetch(url):\n    return requests.get(url, verify=False)  # VULN: no cert validation\n",
+    "fixed_code": "// Variant 2 (Fixed)\nimport requests\n\ndef fetch(url):\n    return requests.get(url, verify=True)\n",
+    "text": "Improper Certificate Validation CWE-295 演示 cert_validation 漏洞模式 // Variant 2\nimport requests\n\ndef fetch(url):\n    return requests.get(url, verify=False)  # VULN: no cert validation\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_024",
+    "language": "python",
+    "cwe": "CWE-532",
+    "vuln_type": "Insertion of Sensitive Information into Log File",
+    "description": "演示 log_exposure 漏洞模式",
+    "vuln_code": "// Variant 2\nimport logging\n\ndef log_user(user):\n    logging.info(f\"User login: {user.password}\")  # VULN: sensitive info in log\n",
+    "fixed_code": "// Variant 2 (Fixed)\nimport logging\n\ndef log_user(user):\n    logging.info(f\"User login: {user.username}\")\n",
+    "text": "Insertion of Sensitive Information into Log File CWE-532 演示 log_exposure 漏洞模式 // Variant 2\nimport logging\n\ndef log_user(user):\n    logging.info(f\"User login: {user.password}\")  # VULN: sensitive info in log\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_025",
+    "language": "python",
+    "cwe": "CWE-377",
+    "vuln_type": "Insecure Temporary File",
+    "description": "演示 tmp_file 漏洞模式",
+    "vuln_code": "// Variant 2\nimport os\n\ndef create_temp(suffix):\n    path = f\"/tmp/file{suffix}\"\n    open(path, \"w\").close()  # VULN: predictable temp file\n    return",
+    "fixed_code": "// Variant 2 (Fixed)\nimport tempfile\n\ndef create_temp(suffix):\n    fd, path = tempfile.mkstemp(suffix=suffix)\n    os.close(fd)\n    return path\n",
+    "text": "Insecure Temporary File CWE-377 演示 tmp_file 漏洞模式 // Variant 2\nimport os\n\ndef create_temp(suffix):\n    path = f\"/tmp/file{suffix}\"\n    open(path, \"w\").close()  # VULN: predictable temp file\n    return path\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_026",
+    "language": "python",
+    "cwe": "CWE-94",
+    "vuln_type": "Code Injection",
+    "description": "演示 exec_injection 漏洞模式",
+    "vuln_code": "// Variant 2\ndef execute_code(code):\n    exec(code)  # VULN: arbitrary code execution\n",
+    "fixed_code": "// Variant 2 (Fixed)\nimport ast\n\nALLOWED_NODES = {ast.Expression, ast.BinOp, ast.Num, ast.Add, ast.Sub, ast.Mult, ast.Div}\n\ndef execute_code(code):\n  ",
+    "text": "Code Injection CWE-94 演示 exec_injection 漏洞模式 // Variant 2\ndef execute_code(code):\n    exec(code)  # VULN: arbitrary code execution\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_027",
+    "language": "python",
+    "cwe": "CWE-798",
+    "vuln_type": "Use of Hard-coded Credentials",
+    "description": "演示 hardcoded_creds 漏洞模式",
+    "vuln_code": "// Variant 2\nAPI_KEY = \"sk-1234567890abcdef\"  # VULN: hardcoded credential\n\ndef authenticate():\n    headers = {\"Authorization\": API_KEY}\n    return he",
+    "fixed_code": "// Variant 2 (Fixed)\nimport os\n\nAPI_KEY = os.getenv(\"API_KEY\")  # FIX: load from environment\n\ndef authenticate():\n    if not API_KEY:\n        raise Va",
+    "text": "Use of Hard-coded Credentials CWE-798 演示 hardcoded_creds 漏洞模式 // Variant 2\nAPI_KEY = \"sk-1234567890abcdef\"  # VULN: hardcoded credential\n\ndef authenticate():\n    headers = {\"Authorization\": API_KEY}\n    return headers\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_028",
+    "language": "python",
+    "cwe": "CWE-862",
+    "vuln_type": "Missing Authorization",
+    "description": "演示 missing_auth 漏洞模式",
+    "vuln_code": "// Variant 2\nfrom flask import Flask, request\napp = Flask(__name__)\n\n@app.route(\"/admin\")\ndef admin_panel():\n    return \"Admin Dashboard\"  # VULN: mis",
+    "fixed_code": "// Variant 2 (Fixed)\nfrom flask import Flask, request, abort\napp = Flask(__name__)\n\n@app.route(\"/admin\")\ndef admin_panel():\n    token = request.header",
+    "text": "Missing Authorization CWE-862 演示 missing_auth 漏洞模式 // Variant 2\nfrom flask import Flask, request\napp = Flask(__name__)\n\n@app.route(\"/admin\")\ndef admin_panel():\n    return \"Admin Dashboard\"  # VULN: missing authorization\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_029",
+    "language": "python",
+    "cwe": "CWE-918",
+    "vuln_type": "Server-Side Request Forgery (SSRF)",
+    "description": "演示 ssrf 漏洞模式",
+    "vuln_code": "// Variant 2\nimport urllib.request\n\ndef fetch_url(url):\n    return urllib.request.urlopen(url).read()  # VULN: SSRF\n",
+    "fixed_code": "// Variant 2 (Fixed)\nimport urllib.request\nfrom urllib.parse import urlparse\n\nALLOWED_HOSTS = {\"api.example.com\", \"cdn.example.com\"}\n\ndef fetch_url(ur",
+    "text": "Server-Side Request Forgery (SSRF) CWE-918 演示 ssrf 漏洞模式 // Variant 2\nimport urllib.request\n\ndef fetch_url(url):\n    return urllib.request.urlopen(url).read()  # VULN: SSRF\n"
+  },
+  {
+    "id": "PYTHON_SAMPLE_030",
+    "language": "python",
+    "cwe": "CWE-116",
+    "vuln_type": "Improper Encoding or Escaping",
+    "description": "演示 improper_encoding 漏洞模式",
+    "vuln_code": "// Variant 2\nfrom flask import Flask, request, make_response\napp = Flask(__name__)\n\n@app.route(\"/echo\")\ndef echo():\n    name = request.args.get(\"name\"",
+    "fixed_code": "// Variant 2 (Fixed)\nfrom flask import Flask, request, make_response\nfrom html import escape\napp = Flask(__name__)\n\n@app.route(\"/echo\")\ndef echo():\n  ",
+    "text": "Improper Encoding or Escaping CWE-116 演示 improper_encoding 漏洞模式 // Variant 2\nfrom flask import Flask, request, make_response\napp = Flask(__name__)\n\n@app.route(\"/echo\")\ndef echo():\n    name = request.args.get(\"name\")\n    return f\"<div>{name}</div>\"  # VULN: improper encoding\n"
+  }
+]

@@ -1,0 +1,204 @@
+{
+  "Python": {
+    "SAMPLE_001": {
+      "vulnerable": "import os\n\ndef run_user_cmd(cmd):\n    os.system(cmd)  # VULN: command injection\n",
+      "fixed": "import shlex\nimport subprocess\n\ndef run_user_cmd(cmd):\n    args = shlex.split(cmd)\n    if any(c in args for c in [';', '|', '&', '$', '`']):\n        raise ValueError(\"Invalid characters\")\n    subprocess.run(args, check=True)\n"
+    },
+    "SAMPLE_002": {
+      "vulnerable": "import sqlite3\n\ndef get_user(username):\n    conn = sqlite3.connect('db.sqlite')\n    cursor = conn.cursor()\n    cursor.execute(f\"SELECT * FROM users WHERE username = '{username}'\")\n    return cursor.fetchall()  # VULN: SQL injection\n",
+      "fixed": "import sqlite3\n\ndef get_user(username):\n    conn = sqlite3.connect('db.sqlite')\n    cursor = conn.cursor()\n    cursor.execute(\"SELECT * FROM users WHERE username = ?\", (username,))\n    return cursor.fetchall()\n"
+    },
+    "SAMPLE_003": {
+      "vulnerable": "def read_file(filename):\n    with open(f\"/data/{filename}\", \"r\") as f:\n        return f.read()  # VULN: path traversal\n",
+      "fixed": "import os\n\ndef read_file(filename):\n    base = os.path.abspath(\"/data\")\n    target = os.path.abspath(os.path.join(base, filename))\n    if not target.startswith(base):\n        raise ValueError(\"Invalid path\")\n    with open(target, \"r\") as f:\n        return f.read()\n"
+    },
+    "SAMPLE_004": {
+      "vulnerable": "import pickle\n\ndef load_object(data):\n    return pickle.loads(data)  # VULN: arbitrary deserialization\n",
+      "fixed": "import json\n\ndef load_object(data):\n    return json.loads(data)  # FIX: use safe serialization\n"
+    },
+    "SAMPLE_005": {
+      "vulnerable": "def calculate(expr):\n    return eval(expr)  # VULN: arbitrary code execution\n",
+      "fixed": "import ast\nimport operator\n\nOPS = {\n    ast.Add: operator.add,\n    ast.Sub: operator.sub,\n    ast.Mult: operator.mul,\n    ast.Div: operator.truediv,\n}\n\ndef calculate(expr):\n    tree = ast.parse(expr, mode='eval')\n    if not isinstance(tree.body, ast.BinOp):\n        raise ValueError(\"Invalid expression\")\n    left = tree.body.left.n\n    right = tree.body.right.n\n    op = OPS[type(tree.body.op)]\n    return op(left, right)\n"
+    },
+    "SAMPLE_006": {
+      "vulnerable": "def process_age(age):\n    return int(age) * 12  # VULN: no validation\n",
+      "fixed": "def process_age(age):\n    try:\n        age = int(age)\n        if age < 0 or age > 150:\n            raise ValueError(\"Invalid age\")\n        return age * 12\n    except ValueError:\n        raise ValueError(\"Age must be a valid integer\")\n"
+    },
+    "SAMPLE_007": {
+      "vulnerable": "from flask import Flask\napp = Flask(__name__)\n\n@app.errorhandler(500)\ndef handle_error(e):\n    return str(e), 500  # VULN: exposes stack trace\n",
+      "fixed": "from flask import Flask\nimport logging\napp = Flask(__name__)\n\n@app.errorhandler(500)\ndef handle_error(e):\n    app.logger.error(str(e))\n    return \"Internal Server Error\", 500\n"
+    },
+    "SAMPLE_008": {
+      "vulnerable": "import requests\n\ndef fetch(url):\n    return requests.get(url, verify=False)  # VULN: no cert validation\n",
+      "fixed": "import requests\n\ndef fetch(url):\n    return requests.get(url, verify=True)\n"
+    },
+    "SAMPLE_009": {
+      "vulnerable": "import logging\n\ndef log_user(user):\n    logging.info(f\"User login: {user.password}\")  # VULN: sensitive info in log\n",
+      "fixed": "import logging\n\ndef log_user(user):\n    logging.info(f\"User login: {user.username}\")\n"
+    },
+    "SAMPLE_010": {
+      "vulnerable": "import os\n\ndef create_temp(suffix):\n    path = f\"/tmp/file{suffix}\"\n    open(path, \"w\").close()  # VULN: predictable temp file\n    return path\n",
+      "fixed": "import tempfile\n\ndef create_temp(suffix):\n    fd, path = tempfile.mkstemp(suffix=suffix)\n    os.close(fd)\n    return path\n"
+    },
+    "SAMPLE_011": {
+      "vulnerable": "def execute_code(code):\n    exec(code)  # VULN: arbitrary code execution\n",
+      "fixed": "import ast\n\nALLOWED_NODES = {ast.Expression, ast.BinOp, ast.Num, ast.Add, ast.Sub, ast.Mult, ast.Div}\n\ndef execute_code(code):\n    tree = ast.parse(code, mode='eval')\n    for node in ast.walk(tree):\n        if type(node) not in ALLOWED_NODES:\n            raise ValueError(\"Disallowed expression\")\n    return eval(compile(tree, '<string>', 'eval'))\n"
+    },
+    "SAMPLE_012": {
+      "vulnerable": "API_KEY = \"sk-1234567890abcdef\"  # VULN: hardcoded credential\n\ndef authenticate():\n    headers = {\"Authorization\": API_KEY}\n    return headers\n",
+      "fixed": "import os\n\nAPI_KEY = os.getenv(\"API_KEY\")  # FIX: load from environment\n\ndef authenticate():\n    if not API_KEY:\n        raise ValueError(\"API_KEY not set\")\n    headers = {\"Authorization\": API_KEY}\n    return headers\n"
+    },
+    "SAMPLE_013": {
+      "vulnerable": "from flask import Flask, request\napp = Flask(__name__)\n\n@app.route(\"/admin\")\ndef admin_panel():\n    return \"Admin Dashboard\"  # VULN: missing authorization\n",
+      "fixed": "from flask import Flask, request, abort\napp = Flask(__name__)\n\n@app.route(\"/admin\")\ndef admin_panel():\n    token = request.headers.get(\"Authorization\")\n    if not token or not validate_token(token):\n        abort(403)\n    return \"Admin Dashboard\"\n"
+    },
+    "SAMPLE_014": {
+      "vulnerable": "import urllib.request\n\ndef fetch_url(url):\n    return urllib.request.urlopen(url).read()  # VULN: SSRF\n",
+      "fixed": "import urllib.request\nfrom urllib.parse import urlparse\n\nALLOWED_HOSTS = {\"api.example.com\", \"cdn.example.com\"}\n\ndef fetch_url(url):\n    parsed = urlparse(url)\n    if parsed.hostname not in ALLOWED_HOSTS:\n        raise ValueError(\"Host not allowed\")\n    return urllib.request.urlopen(url).read()\n"
+    },
+    "SAMPLE_015": {
+      "vulnerable": "from flask import Flask, request, make_response\napp = Flask(__name__)\n\n@app.route(\"/echo\")\ndef echo():\n    name = request.args.get(\"name\")\n    return f\"<div>{name}</div>\"  # VULN: improper encoding\n",
+      "fixed": "from flask import Flask, request, make_response\nfrom html import escape\napp = Flask(__name__)\n\n@app.route(\"/echo\")\ndef echo():\n    name = request.args.get(\"name\")\n    return f\"<div>{escape(name)}</div>\"\n"
+    },
+    "SAMPLE_016": {
+      "vulnerable": "// Variant 2\nimport os\n\ndef run_user_cmd(cmd):\n    os.system(cmd)  # VULN: command injection\n",
+      "fixed": "// Variant 2 (Fixed)\nimport shlex\nimport subprocess\n\ndef run_user_cmd(cmd):\n    args = shlex.split(cmd)\n    if any(c in args for c in [';', '|', '&', '$', '`']):\n        raise ValueError(\"Invalid characters\")\n    subprocess.run(args, check=True)\n"
+    },
+    "SAMPLE_017": {
+      "vulnerable": "// Variant 2\nimport sqlite3\n\ndef get_user(username):\n    conn = sqlite3.connect('db.sqlite')\n    cursor = conn.cursor()\n    cursor.execute(f\"SELECT * FROM users WHERE username = '{username}'\")\n    return cursor.fetchall()  # VULN: SQL injection\n",
+      "fixed": "// Variant 2 (Fixed)\nimport sqlite3\n\ndef get_user(username):\n    conn = sqlite3.connect('db.sqlite')\n    cursor = conn.cursor()\n    cursor.execute(\"SELECT * FROM users WHERE username = ?\", (username,))\n    return cursor.fetchall()\n"
+    },
+    "SAMPLE_018": {
+      "vulnerable": "// Variant 2\ndef read_file(filename):\n    with open(f\"/data/{filename}\", \"r\") as f:\n        return f.read()  # VULN: path traversal\n",
+      "fixed": "// Variant 2 (Fixed)\nimport os\n\ndef read_file(filename):\n    base = os.path.abspath(\"/data\")\n    target = os.path.abspath(os.path.join(base, filename))\n    if not target.startswith(base):\n        raise ValueError(\"Invalid path\")\n    with open(target, \"r\") as f:\n        return f.read()\n"
+    },
+    "SAMPLE_019": {
+      "vulnerable": "// Variant 2\nimport pickle\n\ndef load_object(data):\n    return pickle.loads(data)  # VULN: arbitrary deserialization\n",
+      "fixed": "// Variant 2 (Fixed)\nimport json\n\ndef load_object(data):\n    return json.loads(data)  # FIX: use safe serialization\n"
+    },
+    "SAMPLE_020": {
+      "vulnerable": "// Variant 2\ndef calculate(expr):\n    return eval(expr)  # VULN: arbitrary code execution\n",
+      "fixed": "// Variant 2 (Fixed)\nimport ast\nimport operator\n\nOPS = {\n    ast.Add: operator.add,\n    ast.Sub: operator.sub,\n    ast.Mult: operator.mul,\n    ast.Div: operator.truediv,\n}\n\ndef calculate(expr):\n    tree = ast.parse(expr, mode='eval')\n    if not isinstance(tree.body, ast.BinOp):\n        raise ValueError(\"Invalid expression\")\n    left = tree.body.left.n\n    right = tree.body.right.n\n    op = OPS[type(tree.body.op)]\n    return op(left, right)\n"
+    },
+    "SAMPLE_021": {
+      "vulnerable": "// Variant 2\ndef process_age(age):\n    return int(age) * 12  # VULN: no validation\n",
+      "fixed": "// Variant 2 (Fixed)\ndef process_age(age):\n    try:\n        age = int(age)\n        if age < 0 or age > 150:\n            raise ValueError(\"Invalid age\")\n        return age * 12\n    except ValueError:\n        raise ValueError(\"Age must be a valid integer\")\n"
+    },
+    "SAMPLE_022": {
+      "vulnerable": "// Variant 2\nfrom flask import Flask\napp = Flask(__name__)\n\n@app.errorhandler(500)\ndef handle_error(e):\n    return str(e), 500  # VULN: exposes stack trace\n",
+      "fixed": "// Variant 2 (Fixed)\nfrom flask import Flask\nimport logging\napp = Flask(__name__)\n\n@app.errorhandler(500)\ndef handle_error(e):\n    app.logger.error(str(e))\n    return \"Internal Server Error\", 500\n"
+    },
+    "SAMPLE_023": {
+      "vulnerable": "// Variant 2\nimport requests\n\ndef fetch(url):\n    return requests.get(url, verify=False)  # VULN: no cert validation\n",
+      "fixed": "// Variant 2 (Fixed)\nimport requests\n\ndef fetch(url):\n    return requests.get(url, verify=True)\n"
+    },
+    "SAMPLE_024": {
+      "vulnerable": "// Variant 2\nimport logging\n\ndef log_user(user):\n    logging.info(f\"User login: {user.password}\")  # VULN: sensitive info in log\n",
+      "fixed": "// Variant 2 (Fixed)\nimport logging\n\ndef log_user(user):\n    logging.info(f\"User login: {user.username}\")\n"
+    },
+    "SAMPLE_025": {
+      "vulnerable": "// Variant 2\nimport os\n\ndef create_temp(suffix):\n    path = f\"/tmp/file{suffix}\"\n    open(path, \"w\").close()  # VULN: predictable temp file\n    return path\n",
+      "fixed": "// Variant 2 (Fixed)\nimport tempfile\n\ndef create_temp(suffix):\n    fd, path = tempfile.mkstemp(suffix=suffix)\n    os.close(fd)\n    return path\n"
+    },
+    "SAMPLE_026": {
+      "vulnerable": "// Variant 2\ndef execute_code(code):\n    exec(code)  # VULN: arbitrary code execution\n",
+      "fixed": "// Variant 2 (Fixed)\nimport ast\n\nALLOWED_NODES = {ast.Expression, ast.BinOp, ast.Num, ast.Add, ast.Sub, ast.Mult, ast.Div}\n\ndef execute_code(code):\n    tree = ast.parse(code, mode='eval')\n    for node in ast.walk(tree):\n        if type(node) not in ALLOWED_NODES:\n            raise ValueError(\"Disallowed expression\")\n    return eval(compile(tree, '<string>', 'eval'))\n"
+    },
+    "SAMPLE_027": {
+      "vulnerable": "// Variant 2\nAPI_KEY = \"sk-1234567890abcdef\"  # VULN: hardcoded credential\n\ndef authenticate():\n    headers = {\"Authorization\": API_KEY}\n    return headers\n",
+      "fixed": "// Variant 2 (Fixed)\nimport os\n\nAPI_KEY = os.getenv(\"API_KEY\")  # FIX: load from environment\n\ndef authenticate():\n    if not API_KEY:\n        raise ValueError(\"API_KEY not set\")\n    headers = {\"Authorization\": API_KEY}\n    return headers\n"
+    },
+    "SAMPLE_028": {
+      "vulnerable": "// Variant 2\nfrom flask import Flask, request\napp = Flask(__name__)\n\n@app.route(\"/admin\")\ndef admin_panel():\n    return \"Admin Dashboard\"  # VULN: missing authorization\n",
+      "fixed": "// Variant 2 (Fixed)\nfrom flask import Flask, request, abort\napp = Flask(__name__)\n\n@app.route(\"/admin\")\ndef admin_panel():\n    token = request.headers.get(\"Authorization\")\n    if not token or not validate_token(token):\n        abort(403)\n    return \"Admin Dashboard\"\n"
+    },
+    "SAMPLE_029": {
+      "vulnerable": "// Variant 2\nimport urllib.request\n\ndef fetch_url(url):\n    return urllib.request.urlopen(url).read()  # VULN: SSRF\n",
+      "fixed": "// Variant 2 (Fixed)\nimport urllib.request\nfrom urllib.parse import urlparse\n\nALLOWED_HOSTS = {\"api.example.com\", \"cdn.example.com\"}\n\ndef fetch_url(url):\n    parsed = urlparse(url)\n    if parsed.hostname not in ALLOWED_HOSTS:\n        raise ValueError(\"Host not allowed\")\n    return urllib.request.urlopen(url).read()\n"
+    },
+    "SAMPLE_030": {
+      "vulnerable": "// Variant 2\nfrom flask import Flask, request, make_response\napp = Flask(__name__)\n\n@app.route(\"/echo\")\ndef echo():\n    name = request.args.get(\"name\")\n    return f\"<div>{name}</div>\"  # VULN: improper encoding\n",
+      "fixed": "// Variant 2 (Fixed)\nfrom flask import Flask, request, make_response\nfrom html import escape\napp = Flask(__name__)\n\n@app.route(\"/echo\")\ndef echo():\n    name = request.args.get(\"name\")\n    return f\"<div>{escape(name)}</div>\"\n"
+    },
+    "SAMPLE_031": {
+      "vulnerable": "// Variant 3\nimport os\n\ndef run_user_cmd(cmd):\n    os.system(cmd)  # VULN: command injection\n",
+      "fixed": "// Variant 3 (Fixed)\nimport shlex\nimport subprocess\n\ndef run_user_cmd(cmd):\n    args = shlex.split(cmd)\n    if any(c in args for c in [';', '|', '&', '$', '`']):\n        raise ValueError(\"Invalid characters\")\n    subprocess.run(args, check=True)\n"
+    },
+    "SAMPLE_032": {
+      "vulnerable": "// Variant 3\nimport sqlite3\n\ndef get_user(username):\n    conn = sqlite3.connect('db.sqlite')\n    cursor = conn.cursor()\n    cursor.execute(f\"SELECT * FROM users WHERE username = '{username}'\")\n    return cursor.fetchall()  # VULN: SQL injection\n",
+      "fixed": "// Variant 3 (Fixed)\nimport sqlite3\n\ndef get_user(username):\n    conn = sqlite3.connect('db.sqlite')\n    cursor = conn.cursor()\n    cursor.execute(\"SELECT * FROM users WHERE username = ?\", (username,))\n    return cursor.fetchall()\n"
+    },
+    "SAMPLE_033": {
+      "vulnerable": "// Variant 3\ndef read_file(filename):\n    with open(f\"/data/{filename}\", \"r\") as f:\n        return f.read()  # VULN: path traversal\n",
+      "fixed": "// Variant 3 (Fixed)\nimport os\n\ndef read_file(filename):\n    base = os.path.abspath(\"/data\")\n    target = os.path.abspath(os.path.join(base, filename))\n    if not target.startswith(base):\n        raise ValueError(\"Invalid path\")\n    with open(target, \"r\") as f:\n        return f.read()\n"
+    },
+    "SAMPLE_034": {
+      "vulnerable": "// Variant 3\nimport pickle\n\ndef load_object(data):\n    return pickle.loads(data)  # VULN: arbitrary deserialization\n",
+      "fixed": "// Variant 3 (Fixed)\nimport json\n\ndef load_object(data):\n    return json.loads(data)  # FIX: use safe serialization\n"
+    },
+    "SAMPLE_035": {
+      "vulnerable": "// Variant 3\ndef calculate(expr):\n    return eval(expr)  # VULN: arbitrary code execution\n",
+      "fixed": "// Variant 3 (Fixed)\nimport ast\nimport operator\n\nOPS = {\n    ast.Add: operator.add,\n    ast.Sub: operator.sub,\n    ast.Mult: operator.mul,\n    ast.Div: operator.truediv,\n}\n\ndef calculate(expr):\n    tree = ast.parse(expr, mode='eval')\n    if not isinstance(tree.body, ast.BinOp):\n        raise ValueError(\"Invalid expression\")\n    left = tree.body.left.n\n    right = tree.body.right.n\n    op = OPS[type(tree.body.op)]\n    return op(left, right)\n"
+    },
+    "SAMPLE_036": {
+      "vulnerable": "// Variant 3\ndef process_age(age):\n    return int(age) * 12  # VULN: no validation\n",
+      "fixed": "// Variant 3 (Fixed)\ndef process_age(age):\n    try:\n        age = int(age)\n        if age < 0 or age > 150:\n            raise ValueError(\"Invalid age\")\n        return age * 12\n    except ValueError:\n        raise ValueError(\"Age must be a valid integer\")\n"
+    },
+    "SAMPLE_037": {
+      "vulnerable": "// Variant 3\nfrom flask import Flask\napp = Flask(__name__)\n\n@app.errorhandler(500)\ndef handle_error(e):\n    return str(e), 500  # VULN: exposes stack trace\n",
+      "fixed": "// Variant 3 (Fixed)\nfrom flask import Flask\nimport logging\napp = Flask(__name__)\n\n@app.errorhandler(500)\ndef handle_error(e):\n    app.logger.error(str(e))\n    return \"Internal Server Error\", 500\n"
+    },
+    "SAMPLE_038": {
+      "vulnerable": "// Variant 3\nimport requests\n\ndef fetch(url):\n    return requests.get(url, verify=False)  # VULN: no cert validation\n",
+      "fixed": "// Variant 3 (Fixed)\nimport requests\n\ndef fetch(url):\n    return requests.get(url, verify=True)\n"
+    },
+    "SAMPLE_039": {
+      "vulnerable": "// Variant 3\nimport logging\n\ndef log_user(user):\n    logging.info(f\"User login: {user.password}\")  # VULN: sensitive info in log\n",
+      "fixed": "// Variant 3 (Fixed)\nimport logging\n\ndef log_user(user):\n    logging.info(f\"User login: {user.username}\")\n"
+    },
+    "SAMPLE_040": {
+      "vulnerable": "// Variant 3\nimport os\n\ndef create_temp(suffix):\n    path = f\"/tmp/file{suffix}\"\n    open(path, \"w\").close()  # VULN: predictable temp file\n    return path\n",
+      "fixed": "// Variant 3 (Fixed)\nimport tempfile\n\ndef create_temp(suffix):\n    fd, path = tempfile.mkstemp(suffix=suffix)\n    os.close(fd)\n    return path\n"
+    },
+    "SAMPLE_041": {
+      "vulnerable": "// Variant 3\ndef execute_code(code):\n    exec(code)  # VULN: arbitrary code execution\n",
+      "fixed": "// Variant 3 (Fixed)\nimport ast\n\nALLOWED_NODES = {ast.Expression, ast.BinOp, ast.Num, ast.Add, ast.Sub, ast.Mult, ast.Div}\n\ndef execute_code(code):\n    tree = ast.parse(code, mode='eval')\n    for node in ast.walk(tree):\n        if type(node) not in ALLOWED_NODES:\n            raise ValueError(\"Disallowed expression\")\n    return eval(compile(tree, '<string>', 'eval'))\n"
+    },
+    "SAMPLE_042": {
+      "vulnerable": "// Variant 3\nAPI_KEY = \"sk-1234567890abcdef\"  # VULN: hardcoded credential\n\ndef authenticate():\n    headers = {\"Authorization\": API_KEY}\n    return headers\n",
+      "fixed": "// Variant 3 (Fixed)\nimport os\n\nAPI_KEY = os.getenv(\"API_KEY\")  # FIX: load from environment\n\ndef authenticate():\n    if not API_KEY:\n        raise ValueError(\"API_KEY not set\")\n    headers = {\"Authorization\": API_KEY}\n    return headers\n"
+    },
+    "SAMPLE_043": {
+      "vulnerable": "// Variant 3\nfrom flask import Flask, request\napp = Flask(__name__)\n\n@app.route(\"/admin\")\ndef admin_panel():\n    return \"Admin Dashboard\"  # VULN: missing authorization\n",
+      "fixed": "// Variant 3 (Fixed)\nfrom flask import Flask, request, abort\napp = Flask(__name__)\n\n@app.route(\"/admin\")\ndef admin_panel():\n    token = request.headers.get(\"Authorization\")\n    if not token or not validate_token(token):\n        abort(403)\n    return \"Admin Dashboard\"\n"
+    },
+    "SAMPLE_044": {
+      "vulnerable": "// Variant 3\nimport urllib.request\n\ndef fetch_url(url):\n    return urllib.request.urlopen(url).read()  # VULN: SSRF\n",
+      "fixed": "// Variant 3 (Fixed)\nimport urllib.request\nfrom urllib.parse import urlparse\n\nALLOWED_HOSTS = {\"api.example.com\", \"cdn.example.com\"}\n\ndef fetch_url(url):\n    parsed = urlparse(url)\n    if parsed.hostname not in ALLOWED_HOSTS:\n        raise ValueError(\"Host not allowed\")\n    return urllib.request.urlopen(url).read()\n"
+    },
+    "SAMPLE_045": {
+      "vulnerable": "// Variant 3\nfrom flask import Flask, request, make_response\napp = Flask(__name__)\n\n@app.route(\"/echo\")\ndef echo():\n    name = request.args.get(\"name\")\n    return f\"<div>{name}</div>\"  # VULN: improper encoding\n",
+      "fixed": "// Variant 3 (Fixed)\nfrom flask import Flask, request, make_response\nfrom html import escape\napp = Flask(__name__)\n\n@app.route(\"/echo\")\ndef echo():\n    name = request.args.get(\"name\")\n    return f\"<div>{escape(name)}</div>\"\n"
+    },
+    "SAMPLE_046": {
+      "vulnerable": "// Variant 4\nimport os\n\ndef run_user_cmd(cmd):\n    os.system(cmd)  # VULN: command injection\n",
+      "fixed": "// Variant 4 (Fixed)\nimport shlex\nimport subprocess\n\ndef run_user_cmd(cmd):\n    args = shlex.split(cmd)\n    if any(c in args for c in [';', '|', '&', '$', '`']):\n        raise ValueError(\"Invalid characters\")\n    subprocess.run(args, check=True)\n"
+    },
+    "SAMPLE_047": {
+      "vulnerable": "// Variant 4\nimport sqlite3\n\ndef get_user(username):\n    conn = sqlite3.connect('db.sqlite')\n    cursor = conn.cursor()\n    cursor.execute(f\"SELECT * FROM users WHERE username = '{username}'\")\n    return cursor.fetchall()  # VULN: SQL injection\n",
+      "fixed": "// Variant 4 (Fixed)\nimport sqlite3\n\ndef get_user(username):\n    conn = sqlite3.connect('db.sqlite')\n    cursor = conn.cursor()\n    cursor.execute(\"SELECT * FROM users WHERE username = ?\", (username,))\n    return cursor.fetchall()\n"
+    },
+    "SAMPLE_048": {
+      "vulnerable": "// Variant 4\ndef read_file(filename):\n    with open(f\"/data/{filename}\", \"r\") as f:\n        return f.read()  # VULN: path traversal\n",
+      "fixed": "// Variant 4 (Fixed)\nimport os\n\ndef read_file(filename):\n    base = os.path.abspath(\"/data\")\n    target = os.path.abspath(os.path.join(base, filename))\n    if not target.startswith(base):\n        raise ValueError(\"Invalid path\")\n    with open(target, \"r\") as f:\n        return f.read()\n"
+    },
+    "SAMPLE_049": {
+      "vulnerable": "// Variant 4\nimport pickle\n\ndef load_object(data):\n    return pickle.loads(data)  # VULN: arbitrary deserialization\n",
+      "fixed": "// Variant 4 (Fixed)\nimport json\n\ndef load_object(data):\n    return json.loads(data)  # FIX: use safe serialization\n"
+    },
+    "SAMPLE_050": {
+      "vulnerable": "// Variant 4\ndef calculate(expr):\n    return eval(expr)  # VULN: arbitrary code execution\n",
+      "fixed": "// Variant 4 (Fixed)\nimport ast\nimport operator\n\nOPS = {\n    ast.Add: operator.add,\n    ast.Sub: operator.sub,\n    ast.Mult: operator.mul,\n    ast.Div: operator.truediv,\n}\n\ndef calculate(expr):\n    tree = ast.parse(expr, mode='eval')\n    if not isinstance(tree.body, ast.BinOp):\n        raise ValueError(\"Invalid expression\")\n    left = tree.body.left.n\n    right = tree.body.right.n\n    op = OPS[type(tree.body.op)]\n    return op(left, right)\n"
+    }
+  }
+}

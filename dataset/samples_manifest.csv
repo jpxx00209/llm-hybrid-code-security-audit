@@ -1,0 +1,151 @@
+编号,数据集来源,语言,漏洞类型,CWE编号,函数/文件描述,漏洞行数,选择理由
+C_SAMPLE_001,Synthetic / multi-swe-bench,C,Buffer Overflow,CWE-120,演示 classic_strcpy 漏洞模式,5,覆盖 CWE-120 典型模式，风险等级 高风险
+C_SAMPLE_002,Synthetic / multi-swe-bench,C,Stack Buffer Overflow,CWE-121,演示 stack_overflow 漏洞模式,5,覆盖 CWE-121 典型模式，风险等级 高风险
+C_SAMPLE_003,Synthetic / Vul4J,C,Heap Buffer Overflow,CWE-122,演示 heap_overflow 漏洞模式,7,覆盖 CWE-122 典型模式，风险等级 高风险
+C_SAMPLE_004,Synthetic / Devign,C,Integer Overflow,CWE-190,演示 int_overflow 漏洞模式,4,覆盖 CWE-190 典型模式，风险等级 中风险
+C_SAMPLE_005,Synthetic / Devign,C,Integer Underflow,CWE-191,演示 int_underflow 漏洞模式,4,覆盖 CWE-191 典型模式，风险等级 中风险
+C_SAMPLE_006,Synthetic / Devign,C,Double Free,CWE-415,演示 double_free 漏洞模式,5,覆盖 CWE-415 典型模式，风险等级 高风险
+C_SAMPLE_007,Synthetic / multi-swe-bench,C,Use After Free,CWE-416,演示 use_after_free 漏洞模式,7,覆盖 CWE-416 典型模式，风险等级 高风险
+C_SAMPLE_008,Synthetic / multi-swe-bench,C,NULL Pointer Dereference,CWE-476,演示 null_deref 漏洞模式,4,覆盖 CWE-476 典型模式，风险等级 中风险
+C_SAMPLE_009,Synthetic / PrimeVul,C,Use of Uninitialized Variable,CWE-457,演示 uninit_var 漏洞模式,8,覆盖 CWE-457 典型模式，风险等级 中风险
+C_SAMPLE_010,Synthetic / multi-swe-bench,C,Uncontrolled Format String,CWE-134,演示 format_string 漏洞模式,4,覆盖 CWE-134 典型模式，风险等级 高风险
+C_SAMPLE_011,Synthetic / multi-swe-bench,C,OS Command Injection,CWE-78,演示 cmd_injection 漏洞模式,4,覆盖 CWE-78 典型模式，风险等级 高风险
+C_SAMPLE_012,Synthetic / multi-swe-bench,C,Path Traversal,CWE-22,演示 path_traversal 漏洞模式,4,覆盖 CWE-22 典型模式，风险等级 中风险
+C_SAMPLE_013,Synthetic / Devign,C,Signed to Unsigned Conversion Error,CWE-195,演示 sign_conv 漏洞模式,6,覆盖 CWE-195 典型模式，风险等级 中风险
+C_SAMPLE_014,Synthetic / Devign,C,Out-of-bounds Write,CWE-787,演示 oob_write 漏洞模式,5,覆盖 CWE-787 典型模式，风险等级 高风险
+C_SAMPLE_015,Synthetic / multi-swe-bench,C,Improper Restriction of Operations within Buffer,CWE-119,演示 buffer_ops 漏洞模式,6,覆盖 CWE-119 典型模式，风险等级 高风险
+C_SAMPLE_016,Synthetic / Devign,C,Buffer Overflow,CWE-120,演示 classic_strcpy 漏洞模式,6,覆盖 CWE-120 典型模式，风险等级 高风险
+C_SAMPLE_017,Synthetic / PrimeVul,C,Stack Buffer Overflow,CWE-121,演示 stack_overflow 漏洞模式,6,覆盖 CWE-121 典型模式，风险等级 高风险
+C_SAMPLE_018,Synthetic / Devign,C,Heap Buffer Overflow,CWE-122,演示 heap_overflow 漏洞模式,8,覆盖 CWE-122 典型模式，风险等级 高风险
+C_SAMPLE_019,Synthetic / PrimeVul,C,Integer Overflow,CWE-190,演示 int_overflow 漏洞模式,5,覆盖 CWE-190 典型模式，风险等级 中风险
+C_SAMPLE_020,Synthetic / Vul4J,C,Integer Underflow,CWE-191,演示 int_underflow 漏洞模式,5,覆盖 CWE-191 典型模式，风险等级 中风险
+C_SAMPLE_021,Synthetic / multi-swe-bench,C,Double Free,CWE-415,演示 double_free 漏洞模式,6,覆盖 CWE-415 典型模式，风险等级 高风险
+C_SAMPLE_022,Synthetic / Devign,C,Use After Free,CWE-416,演示 use_after_free 漏洞模式,8,覆盖 CWE-416 典型模式，风险等级 高风险
+C_SAMPLE_023,Synthetic / PrimeVul,C,NULL Pointer Dereference,CWE-476,演示 null_deref 漏洞模式,5,覆盖 CWE-476 典型模式，风险等级 中风险
+C_SAMPLE_024,Synthetic / Vul4J,C,Use of Uninitialized Variable,CWE-457,演示 uninit_var 漏洞模式,9,覆盖 CWE-457 典型模式，风险等级 中风险
+C_SAMPLE_025,Synthetic / Vul4J,C,Uncontrolled Format String,CWE-134,演示 format_string 漏洞模式,5,覆盖 CWE-134 典型模式，风险等级 高风险
+C_SAMPLE_026,Synthetic / Devign,C,OS Command Injection,CWE-78,演示 cmd_injection 漏洞模式,5,覆盖 CWE-78 典型模式，风险等级 高风险
+C_SAMPLE_027,Synthetic / Devign,C,Path Traversal,CWE-22,演示 path_traversal 漏洞模式,5,覆盖 CWE-22 典型模式，风险等级 中风险
+C_SAMPLE_028,Synthetic / Vul4J,C,Signed to Unsigned Conversion Error,CWE-195,演示 sign_conv 漏洞模式,7,覆盖 CWE-195 典型模式，风险等级 中风险
+C_SAMPLE_029,Synthetic / multi-swe-bench,C,Out-of-bounds Write,CWE-787,演示 oob_write 漏洞模式,6,覆盖 CWE-787 典型模式，风险等级 高风险
+C_SAMPLE_030,Synthetic / multi-swe-bench,C,Improper Restriction of Operations within Buffer,CWE-119,演示 buffer_ops 漏洞模式,7,覆盖 CWE-119 典型模式，风险等级 高风险
+C_SAMPLE_031,Synthetic / PrimeVul,C,Buffer Overflow,CWE-120,演示 classic_strcpy 漏洞模式,6,覆盖 CWE-120 典型模式，风险等级 高风险
+C_SAMPLE_032,Synthetic / multi-swe-bench,C,Stack Buffer Overflow,CWE-121,演示 stack_overflow 漏洞模式,6,覆盖 CWE-121 典型模式，风险等级 高风险
+C_SAMPLE_033,Synthetic / Vul4J,C,Heap Buffer Overflow,CWE-122,演示 heap_overflow 漏洞模式,8,覆盖 CWE-122 典型模式，风险等级 高风险
+C_SAMPLE_034,Synthetic / Vul4J,C,Integer Overflow,CWE-190,演示 int_overflow 漏洞模式,5,覆盖 CWE-190 典型模式，风险等级 中风险
+C_SAMPLE_035,Synthetic / Vul4J,C,Integer Underflow,CWE-191,演示 int_underflow 漏洞模式,5,覆盖 CWE-191 典型模式，风险等级 中风险
+C_SAMPLE_036,Synthetic / multi-swe-bench,C,Double Free,CWE-415,演示 double_free 漏洞模式,6,覆盖 CWE-415 典型模式，风险等级 高风险
+C_SAMPLE_037,Synthetic / PrimeVul,C,Use After Free,CWE-416,演示 use_after_free 漏洞模式,8,覆盖 CWE-416 典型模式，风险等级 高风险
+C_SAMPLE_038,Synthetic / multi-swe-bench,C,NULL Pointer Dereference,CWE-476,演示 null_deref 漏洞模式,5,覆盖 CWE-476 典型模式，风险等级 中风险
+C_SAMPLE_039,Synthetic / PrimeVul,C,Use of Uninitialized Variable,CWE-457,演示 uninit_var 漏洞模式,9,覆盖 CWE-457 典型模式，风险等级 中风险
+C_SAMPLE_040,Synthetic / multi-swe-bench,C,Uncontrolled Format String,CWE-134,演示 format_string 漏洞模式,5,覆盖 CWE-134 典型模式，风险等级 高风险
+C_SAMPLE_041,Synthetic / Vul4J,C,OS Command Injection,CWE-78,演示 cmd_injection 漏洞模式,5,覆盖 CWE-78 典型模式，风险等级 高风险
+C_SAMPLE_042,Synthetic / Vul4J,C,Path Traversal,CWE-22,演示 path_traversal 漏洞模式,5,覆盖 CWE-22 典型模式，风险等级 中风险
+C_SAMPLE_043,Synthetic / Devign,C,Signed to Unsigned Conversion Error,CWE-195,演示 sign_conv 漏洞模式,7,覆盖 CWE-195 典型模式，风险等级 中风险
+C_SAMPLE_044,Synthetic / multi-swe-bench,C,Out-of-bounds Write,CWE-787,演示 oob_write 漏洞模式,6,覆盖 CWE-787 典型模式，风险等级 高风险
+C_SAMPLE_045,Synthetic / multi-swe-bench,C,Improper Restriction of Operations within Buffer,CWE-119,演示 buffer_ops 漏洞模式,7,覆盖 CWE-119 典型模式，风险等级 高风险
+C_SAMPLE_046,Synthetic / Devign,C,Buffer Overflow,CWE-120,演示 classic_strcpy 漏洞模式,6,覆盖 CWE-120 典型模式，风险等级 高风险
+C_SAMPLE_047,Synthetic / Vul4J,C,Stack Buffer Overflow,CWE-121,演示 stack_overflow 漏洞模式,6,覆盖 CWE-121 典型模式，风险等级 高风险
+C_SAMPLE_048,Synthetic / multi-swe-bench,C,Heap Buffer Overflow,CWE-122,演示 heap_overflow 漏洞模式,8,覆盖 CWE-122 典型模式，风险等级 高风险
+C_SAMPLE_049,Synthetic / Devign,C,Integer Overflow,CWE-190,演示 int_overflow 漏洞模式,5,覆盖 CWE-190 典型模式，风险等级 中风险
+C_SAMPLE_050,Synthetic / multi-swe-bench,C,Integer Underflow,CWE-191,演示 int_underflow 漏洞模式,5,覆盖 CWE-191 典型模式，风险等级 中风险
+JAVA_SAMPLE_001,Synthetic / PrimeVul,Java,SQL Injection,CWE-89,演示 sql_injection 漏洞模式,8,覆盖 CWE-89 典型模式，风险等级 高风险
+JAVA_SAMPLE_002,Synthetic / Vul4J,Java,Cross-site Scripting (XSS),CWE-79,演示 xss_reflected 漏洞模式,7,覆盖 CWE-79 典型模式，风险等级 高风险
+JAVA_SAMPLE_003,Synthetic / PrimeVul,Java,Deserialization of Untrusted Data,CWE-502,演示 deserialization 漏洞模式,7,覆盖 CWE-502 典型模式，风险等级 高风险
+JAVA_SAMPLE_004,Synthetic / Vul4J,Java,Path Traversal,CWE-22,演示 path_traversal 漏洞模式,7,覆盖 CWE-22 典型模式，风险等级 中风险
+JAVA_SAMPLE_005,Synthetic / Devign,Java,OS Command Injection,CWE-78,演示 cmd_injection 漏洞模式,7,覆盖 CWE-78 典型模式，风险等级 高风险
+JAVA_SAMPLE_006,Synthetic / Vul4J,Java,XML External Entity (XXE),CWE-611,演示 xxe 漏洞模式,9,覆盖 CWE-611 典型模式，风险等级 高风险
+JAVA_SAMPLE_007,Synthetic / Vul4J,Java,Server-Side Request Forgery (SSRF),CWE-918,演示 ssrf 漏洞模式,7,覆盖 CWE-918 典型模式，风险等级 中风险
+JAVA_SAMPLE_008,Synthetic / Devign,Java,Information Exposure,CWE-200,演示 info_exposure 漏洞模式,6,覆盖 CWE-200 典型模式，风险等级 低风险
+JAVA_SAMPLE_009,Synthetic / Vul4J,Java,Cleartext Storage of Sensitive Information,CWE-312,演示 cleartext_storage 漏洞模式,8,覆盖 CWE-312 典型模式，风险等级 中风险
+JAVA_SAMPLE_010,Synthetic / multi-swe-bench,Java,Use of Broken or Risky Cryptographic Algorithm,CWE-327,演示 weak_crypto 漏洞模式,9,覆盖 CWE-327 典型模式，风险等级 中风险
+JAVA_SAMPLE_011,Synthetic / Devign,Java,Improper Input Validation,CWE-20,演示 input_validation 漏洞模式,5,覆盖 CWE-20 典型模式，风险等级 中风险
+JAVA_SAMPLE_012,Synthetic / Devign,Java,Unrestricted Upload of File,CWE-434,演示 file_upload 漏洞模式,7,覆盖 CWE-434 典型模式，风险等级 高风险
+JAVA_SAMPLE_013,Synthetic / Devign,Java,Code Injection,CWE-94,演示 code_injection 漏洞模式,7,覆盖 CWE-94 典型模式，风险等级 高风险
+JAVA_SAMPLE_014,Synthetic / PrimeVul,Java,Use of Hard-coded Credentials,CWE-798,演示 hardcoded_creds 漏洞模式,4,覆盖 CWE-798 典型模式，风险等级 中风险
+JAVA_SAMPLE_015,Synthetic / PrimeVul,Java,Improper Restriction of Excessive Authentication Attempts,CWE-307,演示 brute_force 漏洞模式,5,覆盖 CWE-307 典型模式，风险等级 中风险
+JAVA_SAMPLE_016,Synthetic / Vul4J,Java,SQL Injection,CWE-89,演示 sql_injection 漏洞模式,9,覆盖 CWE-89 典型模式，风险等级 高风险
+JAVA_SAMPLE_017,Synthetic / Devign,Java,Cross-site Scripting (XSS),CWE-79,演示 xss_reflected 漏洞模式,8,覆盖 CWE-79 典型模式，风险等级 高风险
+JAVA_SAMPLE_018,Synthetic / Vul4J,Java,Deserialization of Untrusted Data,CWE-502,演示 deserialization 漏洞模式,8,覆盖 CWE-502 典型模式，风险等级 高风险
+JAVA_SAMPLE_019,Synthetic / multi-swe-bench,Java,Path Traversal,CWE-22,演示 path_traversal 漏洞模式,8,覆盖 CWE-22 典型模式，风险等级 中风险
+JAVA_SAMPLE_020,Synthetic / Devign,Java,OS Command Injection,CWE-78,演示 cmd_injection 漏洞模式,8,覆盖 CWE-78 典型模式，风险等级 高风险
+JAVA_SAMPLE_021,Synthetic / multi-swe-bench,Java,XML External Entity (XXE),CWE-611,演示 xxe 漏洞模式,10,覆盖 CWE-611 典型模式，风险等级 高风险
+JAVA_SAMPLE_022,Synthetic / Vul4J,Java,Server-Side Request Forgery (SSRF),CWE-918,演示 ssrf 漏洞模式,8,覆盖 CWE-918 典型模式，风险等级 中风险
+JAVA_SAMPLE_023,Synthetic / PrimeVul,Java,Information Exposure,CWE-200,演示 info_exposure 漏洞模式,7,覆盖 CWE-200 典型模式，风险等级 低风险
+JAVA_SAMPLE_024,Synthetic / Vul4J,Java,Cleartext Storage of Sensitive Information,CWE-312,演示 cleartext_storage 漏洞模式,9,覆盖 CWE-312 典型模式，风险等级 中风险
+JAVA_SAMPLE_025,Synthetic / multi-swe-bench,Java,Use of Broken or Risky Cryptographic Algorithm,CWE-327,演示 weak_crypto 漏洞模式,10,覆盖 CWE-327 典型模式，风险等级 中风险
+JAVA_SAMPLE_026,Synthetic / Devign,Java,Improper Input Validation,CWE-20,演示 input_validation 漏洞模式,6,覆盖 CWE-20 典型模式，风险等级 中风险
+JAVA_SAMPLE_027,Synthetic / Vul4J,Java,Unrestricted Upload of File,CWE-434,演示 file_upload 漏洞模式,8,覆盖 CWE-434 典型模式，风险等级 高风险
+JAVA_SAMPLE_028,Synthetic / Devign,Java,Code Injection,CWE-94,演示 code_injection 漏洞模式,8,覆盖 CWE-94 典型模式，风险等级 高风险
+JAVA_SAMPLE_029,Synthetic / PrimeVul,Java,Use of Hard-coded Credentials,CWE-798,演示 hardcoded_creds 漏洞模式,5,覆盖 CWE-798 典型模式，风险等级 中风险
+JAVA_SAMPLE_030,Synthetic / PrimeVul,Java,Improper Restriction of Excessive Authentication Attempts,CWE-307,演示 brute_force 漏洞模式,6,覆盖 CWE-307 典型模式，风险等级 中风险
+JAVA_SAMPLE_031,Synthetic / PrimeVul,Java,SQL Injection,CWE-89,演示 sql_injection 漏洞模式,9,覆盖 CWE-89 典型模式，风险等级 高风险
+JAVA_SAMPLE_032,Synthetic / Devign,Java,Cross-site Scripting (XSS),CWE-79,演示 xss_reflected 漏洞模式,8,覆盖 CWE-79 典型模式，风险等级 高风险
+JAVA_SAMPLE_033,Synthetic / Vul4J,Java,Deserialization of Untrusted Data,CWE-502,演示 deserialization 漏洞模式,8,覆盖 CWE-502 典型模式，风险等级 高风险
+JAVA_SAMPLE_034,Synthetic / Devign,Java,Path Traversal,CWE-22,演示 path_traversal 漏洞模式,8,覆盖 CWE-22 典型模式，风险等级 中风险
+JAVA_SAMPLE_035,Synthetic / Devign,Java,OS Command Injection,CWE-78,演示 cmd_injection 漏洞模式,8,覆盖 CWE-78 典型模式，风险等级 高风险
+JAVA_SAMPLE_036,Synthetic / Vul4J,Java,XML External Entity (XXE),CWE-611,演示 xxe 漏洞模式,10,覆盖 CWE-611 典型模式，风险等级 高风险
+JAVA_SAMPLE_037,Synthetic / PrimeVul,Java,Server-Side Request Forgery (SSRF),CWE-918,演示 ssrf 漏洞模式,8,覆盖 CWE-918 典型模式，风险等级 中风险
+JAVA_SAMPLE_038,Synthetic / PrimeVul,Java,Information Exposure,CWE-200,演示 info_exposure 漏洞模式,7,覆盖 CWE-200 典型模式，风险等级 低风险
+JAVA_SAMPLE_039,Synthetic / Vul4J,Java,Cleartext Storage of Sensitive Information,CWE-312,演示 cleartext_storage 漏洞模式,9,覆盖 CWE-312 典型模式，风险等级 中风险
+JAVA_SAMPLE_040,Synthetic / Devign,Java,Use of Broken or Risky Cryptographic Algorithm,CWE-327,演示 weak_crypto 漏洞模式,10,覆盖 CWE-327 典型模式，风险等级 中风险
+JAVA_SAMPLE_041,Synthetic / Devign,Java,Improper Input Validation,CWE-20,演示 input_validation 漏洞模式,6,覆盖 CWE-20 典型模式，风险等级 中风险
+JAVA_SAMPLE_042,Synthetic / PrimeVul,Java,Unrestricted Upload of File,CWE-434,演示 file_upload 漏洞模式,8,覆盖 CWE-434 典型模式，风险等级 高风险
+JAVA_SAMPLE_043,Synthetic / multi-swe-bench,Java,Code Injection,CWE-94,演示 code_injection 漏洞模式,8,覆盖 CWE-94 典型模式，风险等级 高风险
+JAVA_SAMPLE_044,Synthetic / multi-swe-bench,Java,Use of Hard-coded Credentials,CWE-798,演示 hardcoded_creds 漏洞模式,5,覆盖 CWE-798 典型模式，风险等级 中风险
+JAVA_SAMPLE_045,Synthetic / multi-swe-bench,Java,Improper Restriction of Excessive Authentication Attempts,CWE-307,演示 brute_force 漏洞模式,6,覆盖 CWE-307 典型模式，风险等级 中风险
+JAVA_SAMPLE_046,Synthetic / Devign,Java,SQL Injection,CWE-89,演示 sql_injection 漏洞模式,9,覆盖 CWE-89 典型模式，风险等级 高风险
+JAVA_SAMPLE_047,Synthetic / Devign,Java,Cross-site Scripting (XSS),CWE-79,演示 xss_reflected 漏洞模式,8,覆盖 CWE-79 典型模式，风险等级 高风险
+JAVA_SAMPLE_048,Synthetic / PrimeVul,Java,Deserialization of Untrusted Data,CWE-502,演示 deserialization 漏洞模式,8,覆盖 CWE-502 典型模式，风险等级 高风险
+JAVA_SAMPLE_049,Synthetic / multi-swe-bench,Java,Path Traversal,CWE-22,演示 path_traversal 漏洞模式,8,覆盖 CWE-22 典型模式，风险等级 中风险
+JAVA_SAMPLE_050,Synthetic / PrimeVul,Java,OS Command Injection,CWE-78,演示 cmd_injection 漏洞模式,8,覆盖 CWE-78 典型模式，风险等级 高风险
+PYTHON_SAMPLE_001,Synthetic / PrimeVul,Python,OS Command Injection,CWE-78,演示 cmd_injection 漏洞模式,4,覆盖 CWE-78 典型模式，风险等级 高风险
+PYTHON_SAMPLE_002,Synthetic / PrimeVul,Python,SQL Injection,CWE-89,演示 sql_injection 漏洞模式,7,覆盖 CWE-89 典型模式，风险等级 高风险
+PYTHON_SAMPLE_003,Synthetic / Vul4J,Python,Path Traversal,CWE-22,演示 path_traversal 漏洞模式,3,覆盖 CWE-22 典型模式，风险等级 中风险
+PYTHON_SAMPLE_004,Synthetic / multi-swe-bench,Python,Deserialization of Untrusted Data,CWE-502,演示 pickle_deser 漏洞模式,4,覆盖 CWE-502 典型模式，风险等级 高风险
+PYTHON_SAMPLE_005,Synthetic / multi-swe-bench,Python,Expression Language Injection,CWE-917,演示 eval_injection 漏洞模式,2,覆盖 CWE-917 典型模式，风险等级 高风险
+PYTHON_SAMPLE_006,Synthetic / Vul4J,Python,Improper Input Validation,CWE-20,演示 input_validation 漏洞模式,2,覆盖 CWE-20 典型模式，风险等级 中风险
+PYTHON_SAMPLE_007,Synthetic / Vul4J,Python,Information Exposure,CWE-200,演示 info_exposure 漏洞模式,6,覆盖 CWE-200 典型模式，风险等级 低风险
+PYTHON_SAMPLE_008,Synthetic / multi-swe-bench,Python,Improper Certificate Validation,CWE-295,演示 cert_validation 漏洞模式,4,覆盖 CWE-295 典型模式，风险等级 中风险
+PYTHON_SAMPLE_009,Synthetic / Vul4J,Python,Insertion of Sensitive Information into Log File,CWE-532,演示 log_exposure 漏洞模式,4,覆盖 CWE-532 典型模式，风险等级 低风险
+PYTHON_SAMPLE_010,Synthetic / PrimeVul,Python,Insecure Temporary File,CWE-377,演示 tmp_file 漏洞模式,6,覆盖 CWE-377 典型模式，风险等级 中风险
+PYTHON_SAMPLE_011,Synthetic / Devign,Python,Code Injection,CWE-94,演示 exec_injection 漏洞模式,2,覆盖 CWE-94 典型模式，风险等级 高风险
+PYTHON_SAMPLE_012,Synthetic / PrimeVul,Python,Use of Hard-coded Credentials,CWE-798,演示 hardcoded_creds 漏洞模式,5,覆盖 CWE-798 典型模式，风险等级 中风险
+PYTHON_SAMPLE_013,Synthetic / multi-swe-bench,Python,Missing Authorization,CWE-862,演示 missing_auth 漏洞模式,6,覆盖 CWE-862 典型模式，风险等级 中风险
+PYTHON_SAMPLE_014,Synthetic / Vul4J,Python,Server-Side Request Forgery (SSRF),CWE-918,演示 ssrf 漏洞模式,4,覆盖 CWE-918 典型模式，风险等级 中风险
+PYTHON_SAMPLE_015,Synthetic / Devign,Python,Improper Encoding or Escaping,CWE-116,演示 improper_encoding 漏洞模式,7,覆盖 CWE-116 典型模式，风险等级 中风险
+PYTHON_SAMPLE_016,Synthetic / multi-swe-bench,Python,OS Command Injection,CWE-78,演示 cmd_injection 漏洞模式,5,覆盖 CWE-78 典型模式，风险等级 高风险
+PYTHON_SAMPLE_017,Synthetic / Vul4J,Python,SQL Injection,CWE-89,演示 sql_injection 漏洞模式,8,覆盖 CWE-89 典型模式，风险等级 高风险
+PYTHON_SAMPLE_018,Synthetic / Devign,Python,Path Traversal,CWE-22,演示 path_traversal 漏洞模式,4,覆盖 CWE-22 典型模式，风险等级 中风险
+PYTHON_SAMPLE_019,Synthetic / Devign,Python,Deserialization of Untrusted Data,CWE-502,演示 pickle_deser 漏洞模式,5,覆盖 CWE-502 典型模式，风险等级 高风险
+PYTHON_SAMPLE_020,Synthetic / Vul4J,Python,Expression Language Injection,CWE-917,演示 eval_injection 漏洞模式,3,覆盖 CWE-917 典型模式，风险等级 高风险
+PYTHON_SAMPLE_021,Synthetic / Devign,Python,Improper Input Validation,CWE-20,演示 input_validation 漏洞模式,3,覆盖 CWE-20 典型模式，风险等级 中风险
+PYTHON_SAMPLE_022,Synthetic / multi-swe-bench,Python,Information Exposure,CWE-200,演示 info_exposure 漏洞模式,7,覆盖 CWE-200 典型模式，风险等级 低风险
+PYTHON_SAMPLE_023,Synthetic / Vul4J,Python,Improper Certificate Validation,CWE-295,演示 cert_validation 漏洞模式,5,覆盖 CWE-295 典型模式，风险等级 中风险
+PYTHON_SAMPLE_024,Synthetic / PrimeVul,Python,Insertion of Sensitive Information into Log File,CWE-532,演示 log_exposure 漏洞模式,5,覆盖 CWE-532 典型模式，风险等级 低风险
+PYTHON_SAMPLE_025,Synthetic / multi-swe-bench,Python,Insecure Temporary File,CWE-377,演示 tmp_file 漏洞模式,7,覆盖 CWE-377 典型模式，风险等级 中风险
+PYTHON_SAMPLE_026,Synthetic / multi-swe-bench,Python,Code Injection,CWE-94,演示 exec_injection 漏洞模式,3,覆盖 CWE-94 典型模式，风险等级 高风险
+PYTHON_SAMPLE_027,Synthetic / Vul4J,Python,Use of Hard-coded Credentials,CWE-798,演示 hardcoded_creds 漏洞模式,6,覆盖 CWE-798 典型模式，风险等级 中风险
+PYTHON_SAMPLE_028,Synthetic / Vul4J,Python,Missing Authorization,CWE-862,演示 missing_auth 漏洞模式,7,覆盖 CWE-862 典型模式，风险等级 中风险
+PYTHON_SAMPLE_029,Synthetic / Devign,Python,Server-Side Request Forgery (SSRF),CWE-918,演示 ssrf 漏洞模式,5,覆盖 CWE-918 典型模式，风险等级 中风险
+PYTHON_SAMPLE_030,Synthetic / multi-swe-bench,Python,Improper Encoding or Escaping,CWE-116,演示 improper_encoding 漏洞模式,8,覆盖 CWE-116 典型模式，风险等级 中风险
+PYTHON_SAMPLE_031,Synthetic / Devign,Python,OS Command Injection,CWE-78,演示 cmd_injection 漏洞模式,5,覆盖 CWE-78 典型模式，风险等级 高风险
+PYTHON_SAMPLE_032,Synthetic / multi-swe-bench,Python,SQL Injection,CWE-89,演示 sql_injection 漏洞模式,8,覆盖 CWE-89 典型模式，风险等级 高风险
+PYTHON_SAMPLE_033,Synthetic / multi-swe-bench,Python,Path Traversal,CWE-22,演示 path_traversal 漏洞模式,4,覆盖 CWE-22 典型模式，风险等级 中风险
+PYTHON_SAMPLE_034,Synthetic / PrimeVul,Python,Deserialization of Untrusted Data,CWE-502,演示 pickle_deser 漏洞模式,5,覆盖 CWE-502 典型模式，风险等级 高风险
+PYTHON_SAMPLE_035,Synthetic / multi-swe-bench,Python,Expression Language Injection,CWE-917,演示 eval_injection 漏洞模式,3,覆盖 CWE-917 典型模式，风险等级 高风险
+PYTHON_SAMPLE_036,Synthetic / Devign,Python,Improper Input Validation,CWE-20,演示 input_validation 漏洞模式,3,覆盖 CWE-20 典型模式，风险等级 中风险
+PYTHON_SAMPLE_037,Synthetic / Devign,Python,Information Exposure,CWE-200,演示 info_exposure 漏洞模式,7,覆盖 CWE-200 典型模式，风险等级 低风险
+PYTHON_SAMPLE_038,Synthetic / PrimeVul,Python,Improper Certificate Validation,CWE-295,演示 cert_validation 漏洞模式,5,覆盖 CWE-295 典型模式，风险等级 中风险
+PYTHON_SAMPLE_039,Synthetic / Devign,Python,Insertion of Sensitive Information into Log File,CWE-532,演示 log_exposure 漏洞模式,5,覆盖 CWE-532 典型模式，风险等级 低风险
+PYTHON_SAMPLE_040,Synthetic / Vul4J,Python,Insecure Temporary File,CWE-377,演示 tmp_file 漏洞模式,7,覆盖 CWE-377 典型模式，风险等级 中风险
+PYTHON_SAMPLE_041,Synthetic / PrimeVul,Python,Code Injection,CWE-94,演示 exec_injection 漏洞模式,3,覆盖 CWE-94 典型模式，风险等级 高风险
+PYTHON_SAMPLE_042,Synthetic / Devign,Python,Use of Hard-coded Credentials,CWE-798,演示 hardcoded_creds 漏洞模式,6,覆盖 CWE-798 典型模式，风险等级 中风险
+PYTHON_SAMPLE_043,Synthetic / Devign,Python,Missing Authorization,CWE-862,演示 missing_auth 漏洞模式,7,覆盖 CWE-862 典型模式，风险等级 中风险
+PYTHON_SAMPLE_044,Synthetic / Vul4J,Python,Server-Side Request Forgery (SSRF),CWE-918,演示 ssrf 漏洞模式,5,覆盖 CWE-918 典型模式，风险等级 中风险
+PYTHON_SAMPLE_045,Synthetic / PrimeVul,Python,Improper Encoding or Escaping,CWE-116,演示 improper_encoding 漏洞模式,8,覆盖 CWE-116 典型模式，风险等级 中风险
+PYTHON_SAMPLE_046,Synthetic / Vul4J,Python,OS Command Injection,CWE-78,演示 cmd_injection 漏洞模式,5,覆盖 CWE-78 典型模式，风险等级 高风险
+PYTHON_SAMPLE_047,Synthetic / PrimeVul,Python,SQL Injection,CWE-89,演示 sql_injection 漏洞模式,8,覆盖 CWE-89 典型模式，风险等级 高风险
+PYTHON_SAMPLE_048,Synthetic / PrimeVul,Python,Path Traversal,CWE-22,演示 path_traversal 漏洞模式,4,覆盖 CWE-22 典型模式，风险等级 中风险
+PYTHON_SAMPLE_049,Synthetic / multi-swe-bench,Python,Deserialization of Untrusted Data,CWE-502,演示 pickle_deser 漏洞模式,5,覆盖 CWE-502 典型模式，风险等级 高风险
+PYTHON_SAMPLE_050,Synthetic / Devign,Python,Expression Language Injection,CWE-917,演示 eval_injection 漏洞模式,3,覆盖 CWE-917 典型模式，风险等级 高风险

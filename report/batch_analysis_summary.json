@@ -1,0 +1,30 @@
+{
+  "total_samples": 150,
+  "total_repaired_lines": 1789,
+  "detection_rate": 0.5067,
+  "false_positive_rate": 0.0,
+  "repair_success_rate": 0.5067,
+  "precision": 1.0,
+  "recall": 0.5067,
+  "f1_score": 0.6726,
+  "stats_by_language": {
+    "C": {
+      "TP": 23,
+      "FP": 0,
+      "FN": 27,
+      "repaired_lines": 573
+    },
+    "Java": {
+      "TP": 25,
+      "FP": 0,
+      "FN": 25,
+      "repaired_lines": 622
+    },
+    "Python": {
+      "TP": 28,
+      "FP": 0,
+      "FN": 22,
+      "repaired_lines": 594
+    }
+  }
+}

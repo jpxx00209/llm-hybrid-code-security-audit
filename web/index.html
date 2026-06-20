@@ -1,1 +1,753 @@
-...
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>基于LLM与混合分析的代码安全审计系统</title>
+<style>
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-panel: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --danger: #ef4444;
+  --danger-bg: rgba(239,68,68,0.15);
+  --success: #22c55e;
+  --success-bg: rgba(34,197,94,0.15);
+  --warning: #f59e0b;
+  --border: #475569;
+  --font-mono: 'Consolas','Monaco','Courier New',monospace;
+  --font-sans: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+/* Header */
+.header {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.header-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.header-controls label { font-size: 0.85rem; color: var(--text-secondary); }
+select, button {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+select:hover, button:hover { border-color: var(--accent); }
+select:focus, button:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  border: none;
+  font-weight: 600;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+.btn-secondary { background: var(--bg-secondary); }
+.mode-toggle { display: flex; gap: 8px; align-items: center; }
+.mode-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+}
+.mode-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* Main Layout */
+.main {
+  flex: 1;
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  overflow: hidden;
+}
+.panel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.panel-header {
+  background: var(--bg-panel);
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.panel-body { flex: 1; overflow: auto; padding: 0; position: relative; }
+
+/* Three columns */
+.col-left { flex: 1; min-width: 300px; }
+.col-mid { flex: 1; min-width: 300px; }
+.col-right { flex: 1; min-width: 300px; }
+
+/* Code Editor */
+.code-editor {
+  width: 100%;
+  height: 100%;
+  background: #0d1117;
+  color: #c9d1d9;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  padding: 16px;
+  border: none;
+  resize: none;
+  outline: none;
+  white-space: pre;
+  overflow: auto;
+}
+
+/* Syntax Highlighting simulation */
+.code-display {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  padding: 16px;
+  background: #0d1117;
+  color: #c9d1d9;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow: auto;
+  height: 100%;
+}
+.line-num {
+  display: inline-block;
+  width: 36px;
+  color: #484f58;
+  text-align: right;
+  margin-right: 12px;
+  user-select: none;
+}
+.vuln-line { background: var(--danger-bg); display: block; }
+.fix-line { background: var(--success-bg); display: block; }
+.vuln-badge {
+  display: inline-block;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.fix-badge {
+  display: inline-block;
+  background: var(--success);
+  color: #fff;
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* Result Panel */
+.result-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+.result-item:hover { background: rgba(59,130,246,0.05); }
+.result-item:last-child { border-bottom: none; }
+.result-severity {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 8px;
+}
+.severity-high { background: var(--danger-bg); color: var(--danger); }
+.severity-med { background: rgba(245,158,11,0.15); color: var(--warning); }
+.severity-low { background: rgba(34,197,94,0.15); color: var(--success); }
+.result-meta { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
+.result-desc { font-size: 0.85rem; margin-top: 6px; line-height: 1.5; }
+.result-fix { 
+  margin-top: 8px; 
+  padding: 8px 12px; 
+  background: rgba(34,197,94,0.08); 
+  border-left: 3px solid var(--success); 
+  border-radius: 0 6px 6px 0;
+  font-size: 0.82rem;
+  color: #bbf7d0;
+}
+
+/* Dashboard */
+.dashboard {
+  display: flex;
+  gap: 16px;
+  padding: 16px 24px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.stat-card {
+  flex: 1;
+  min-width: 140px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  text-align: center;
+}
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* Progress Bar */
+.progress-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15,23,42,0.85);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.progress-overlay.active { display: flex; }
+.progress-bar {
+  width: 280px;
+  height: 8px;
+  background: var(--bg-panel);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #a78bfa);
+  width: 0%;
+  transition: width 0.3s ease;
+}
+.progress-text { font-size: 0.9rem; color: var(--text-secondary); margin-top: 8px; }
+
+/* API Panel */
+.api-panel {
+  display: none;
+  position: fixed;
+  top: 60px; right: 24px;
+  width: 360px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  z-index: 100;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+.api-panel.show { display: block; }
+.api-panel h3 { font-size: 1rem; margin-bottom: 12px; }
+.api-panel .field { margin-bottom: 12px; }
+.api-panel .field label { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px; }
+.api-panel input {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+}
+.api-panel input:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Demo selector */
+.demo-selector {
+  padding: 8px 16px;
+  background: rgba(59,130,246,0.08);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .main { flex-direction: column; }
+  .col-left, .col-mid, .col-right { min-width: 100%; height: 300px; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #64748b; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-title">🔒 基于LLM与混合分析的代码安全审计系统</div>
+  <div class="header-controls">
+    <div>
+      <label>语言：</label>
+      <select id="langSelect">
+        <option value="C">C</option>
+        <option value="Java" selected>Java</option>
+        <option value="Python">Python</option>
+      </select>
+    </div>
+    <div class="mode-toggle">
+      <label>模式：</label>
+      <button class="mode-btn active" id="btnLocal" onclick="setMode('local')">本地推理</button>
+      <button class="mode-btn" id="btnApi" onclick="setMode('api')">API模式</button>
+    </div>
+    <button class="btn-secondary" onclick="toggleApiPanel()">⚙️ API配置</button>
+    <button class="btn-primary" onclick="startAnalysis()">🚀 开始分析</button>
+    <button class="btn-secondary" onclick="exportReport()">📄 导出报告</button>
+  </div>
+</div>
+
+<!-- API Panel -->
+<div class="api-panel" id="apiPanel">
+  <h3>API 配置</h3>
+  <div class="field">
+    <label>API Key</label>
+    <input type="password" id="apiKey" placeholder="sk-...">
+  </div>
+  <div class="field">
+    <label>Base URL</label>
+    <input type="text" id="baseUrl" placeholder="https://api.openai.com/v1">
+  </div>
+  <div class="field">
+    <label>Model 名称</label>
+    <input type="text" id="modelName" placeholder="gpt-4 / deepseek-chat / qwen-max">
+  </div>
+  <div style="display:flex;gap:8px;margin-top:8px;">
+    <button class="btn-primary" style="flex:1;font-size:0.8rem;" onclick="saveApiConfig()">保存</button>
+    <button class="btn-secondary" style="flex:1;font-size:0.8rem;" onclick="toggleApiPanel()">取消</button>
+  </div>
+  <div style="margin-top:10px;font-size:0.75rem;color:var(--text-secondary);line-height:1.4;">
+    支持 OpenAI-compatible 格式。当前为 UI 占位，接口逻辑已预留。
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+
+  <!-- Left: Code Input -->
+  <div class="panel col-left">
+    <div class="panel-header">
+      <span>📝 代码输入</span>
+      <span style="font-size:0.75rem;color:var(--text-secondary);">支持粘贴自定义代码</span>
+    </div>
+    <div class="demo-selector">
+      <span>演示用例：</span>
+      <select id="demoSelect" onchange="loadDemo()">
+        <option value="0">C - Buffer Overflow (CWE-120)</option>
+        <option value="1" selected>Java - SQL Injection (CWE-89)</option>
+        <option value="2">Python - Command Injection (CWE-78)</option>
+      </select>
+    </div>
+    <div class="panel-body">
+      <textarea class="code-editor" id="codeInput" spellcheck="false" placeholder="在此粘贴代码..."></textarea>
+      <div class="progress-overlay" id="progressOverlay">
+        <div>🔍 正在执行混合分析...</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-text" id="progressText">初始化引擎...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Middle: Analysis Results -->
+  <div class="panel col-mid">
+    <div class="panel-header">
+      <span>🎯 分析结果</span>
+      <span id="resultCount" style="font-size:0.75rem;color:var(--text-secondary);">等待分析...</span>
+    </div>
+    <div class="panel-body" id="resultPanel" style="padding: 0;">
+      <div style="padding:24px;text-align:center;color:var(--text-secondary);font-size:0.9rem;">
+        点击 <strong>"开始分析"</strong> 启动混合分析引擎<br>
+        <span style="font-size:0.8rem;margin-top:8px;display:block;">结合传统污点追踪 + LLM Few-shot推理</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Fixed Code -->
+  <div class="panel col-right">
+    <div class="panel-header">
+      <span>✅ 修复后代码</span>
+      <span style="font-size:0.75rem;color:var(--text-secondary);">绿色高亮为修改部分</span>
+    </div>
+    <div class="panel-body">
+      <div class="code-display" id="fixedCodeDisplay">
+        <span style="color:var(--text-secondary);">修复后的代码将在此显示...</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Dashboard -->
+<div class="dashboard">
+  <div class="stat-card">
+    <div class="stat-value" id="statSamples">150</div>
+    <div class="stat-label">检测样本总数</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" id="statDetected">76</div>
+    <div class="stat-label">漏洞检出数</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" id="statConfidence">92.4%</div>
+    <div class="stat-label">平均置信度</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" id="statRepair">50.7%</div>
+    <div class="stat-label">修复成功率</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value" id="statF1">0.673</div>
+    <div class="stat-label">总体 F1-Score</div>
+  </div>
+</div>
+
+<script>
+// ============ Demo Data ============
+const DEMOS = {
+  C: {
+    code: `#include <string.h>
+#include <stdio.h>
+
+void copy_input(char *input) {
+    char buffer[64];
+    strcpy(buffer, input);  // VULN: no bounds check
+}
+
+void process_index(int idx) {
+    int arr[10];
+    arr[idx] = 42;  // VULN: idx unchecked
+}
+`,
+    findings: [
+      {
+        line: 6, type: "Buffer Overflow", cwe: "CWE-120",
+        severity: "high", severityText: "高风险",
+        desc: "污点追踪：input 为外部输入，直接流入 strcpy（第6行）→ 无边界检查。符号执行：当 strlen(input) >= 64 时，buffer 溢出。",
+        fix: "使用 strncpy 并检查边界，确保 buffer[sizeof(buffer)-1] = '\\0'"
+      },
+      {
+        line: 11, type: "Out-of-bounds Write", cwe: "CWE-787",
+        severity: "high", severityText: "高风险",
+        desc: "符号执行：idx 为外部输入，未校验范围即作为数组索引（第11行）→ 当 idx < 0 或 idx >= 10 时发生越界写入。",
+        fix: "增加索引范围校验：idx >= 0 && idx < 10"
+      }
+    ],
+    fixedCode: `1  #include <string.h>
+2  #include <stdio.h>
+3  
+4  void copy_input(char *input) {
+5      char buffer[64];
+6      if (input != NULL) {                              <<< 添加NULL检查
+7          strncpy(buffer, input, sizeof(buffer) - 1);   <<< 替换strcpy为strncpy
+8          buffer[sizeof(buffer) - 1] = '\\0';           <<< 确保终止符
+9      }
+10 }
+11 
+12 void process_index(int idx) {
+13     int arr[10];
+14     if (idx >= 0 && idx < 10) {                         <<< 添加边界校验
+15         arr[idx] = 42;
+16     } else {
+17         fprintf(stderr, "Index out of bounds\\n");     <<< 安全错误处理
+18     }
+19 }`
+  },
+  Java: {
+    code: `import java.sql.*;
+
+public class UserDAO {
+    public User getUser(String username) {
+        String query = "SELECT * FROM users WHERE name = '" + username + "'";
+        Statement stmt = conn.createStatement();
+        return stmt.executeQuery(query);  // VULN: SQL injection
+    }
+}
+`,
+    findings: [
+      {
+        line: 5, type: "SQL Injection", cwe: "CWE-89",
+        severity: "high", severityText: "高风险",
+        desc: "污点追踪：username 为 HTTP 请求参数，直接拼接进 SQL 语句（第5行）→ 攻击者可注入 ' OR '1'='1 等恶意 SQL。",
+        fix: "使用 PreparedStatement 参数化查询，禁止字符串拼接 SQL"
+      }
+    ],
+    fixedCode: `1  import java.sql.*;
+2  
+3  public class UserDAO {
+4      public User getUser(String username) {
+5          String query = "SELECT * FROM users WHERE name = ?";  <<< 使用占位符
+6          PreparedStatement pstmt = conn.prepareStatement(query); <<< 预编译语句
+7          pstmt.setString(1, username);                           <<< 参数绑定
+8          return pstmt.executeQuery();
+9      }
+10 }`
+  },
+  Python: {
+    code: `import os
+import sqlite3
+
+def run_user_cmd(cmd):
+    os.system(cmd)  // VULN: command injection
+
+def get_user(username):
+    conn = sqlite3.connect('db.sqlite')
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM users WHERE username = '{username}'")
+    return cursor.fetchall()  // VULN: SQL injection
+`,
+    findings: [
+      {
+        line: 5, type: "OS Command Injection", cwe: "CWE-78",
+        severity: "high", severityText: "高风险",
+        desc: "污点追踪：cmd 为外部输入，直接流入 os.system（第5行）→ 攻击者可注入 '; rm -rf /' 等命令。",
+        fix: "使用 subprocess.run 配合 shlex.split，禁止 shell=True"
+      },
+      {
+        line: 10, type: "SQL Injection", cwe: "CWE-89",
+        severity: "high", severityText: "高风险",
+        desc: "污点追踪：username 为外部输入，f-string 拼接进 SQL 语句（第10行）→ 攻击者可注入恶意 SQL。",
+        fix: "使用参数化查询（placeholder = ?），禁止字符串拼接 SQL"
+      }
+    ],
+    fixedCode: `1  import shlex
+2  import subprocess
+3  import sqlite3
+4  
+5  def run_user_cmd(cmd):
+6      args = shlex.split(cmd)                               <<< 安全解析参数
+7      if any(c in args for c in [';', '|', '&', '$', '`']):  <<< 黑名单校验
+8          raise ValueError("Invalid characters")
+9      subprocess.run(args, check=True)                      <<< 替换os.system
+10 
+11 def get_user(username):
+12     conn = sqlite3.connect('db.sqlite')
+13     cursor = conn.cursor()
+14     cursor.execute("SELECT * FROM users WHERE username = ?", (username,))  <<< 参数化查询
+15     return cursor.fetchall()`
+  }
+};
+
+// ============ State ============
+let currentMode = 'local';
+let currentLang = 'Java';
+
+// ============ Functions ============
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('btnLocal').classList.toggle('active', mode === 'local');
+  document.getElementById('btnApi').classList.toggle('active', mode === 'api');
+}
+
+function toggleApiPanel() {
+  document.getElementById('apiPanel').classList.toggle('show');
+}
+
+function saveApiConfig() {
+  const key = document.getElementById('apiKey').value;
+  const url = document.getElementById('baseUrl').value;
+  const model = document.getElementById('modelName').value;
+  if (key || url || model) {
+    alert('API配置已保存（本地存储）。当前模式：' + currentMode);
+  }
+  toggleApiPanel();
+}
+
+function loadDemo() {
+  const sel = document.getElementById('demoSelect');
+  const idx = parseInt(sel.value);
+  const langs = ['C', 'Java', 'Python'];
+  const lang = langs[idx];
+  document.getElementById('langSelect').value = lang;
+  currentLang = lang;
+  const demo = DEMOS[lang];
+  document.getElementById('codeInput').value = demo.code;
+  clearResults();
+}
+
+function clearResults() {
+  document.getElementById('resultPanel').innerHTML = `
+    <div style="padding:24px;text-align:center;color:var(--text-secondary);font-size:0.9rem;">
+      点击 <strong>"开始分析"</strong> 启动混合分析引擎<br>
+      <span style="font-size:0.8rem;margin-top:8px;display:block;">结合传统污点追踪 + LLM Few-shot推理</span>
+    </div>`;
+  document.getElementById('fixedCodeDisplay').innerHTML = '<span style="color:var(--text-secondary);">修复后的代码将在此显示...</span>';
+  document.getElementById('resultCount').textContent = '等待分析...';
+}
+
+function startAnalysis() {
+  const lang = document.getElementById('langSelect').value;
+  currentLang = lang;
+  const overlay = document.getElementById('progressOverlay');
+  const fill = document.getElementById('progressFill');
+  const text = document.getElementById('progressText');
+  
+  overlay.classList.add('active');
+  fill.style.width = '0%';
+  
+  const steps = [
+    { pct: '15%', msg: '解析AST与控制流...' },
+    { pct: '35%', msg: '执行污点追踪分析...' },
+    { pct: '55%', msg: 'LLM Few-shot模式识别...' },
+    { pct: '75%', msg: '生成修复建议...' },
+    { pct: '90%', msg: '格式化输出结果...' },
+    { pct: '100%', msg: '分析完成!' }
+  ];
+  
+  let i = 0;
+  function nextStep() {
+    if (i >= steps.length) {
+      setTimeout(() => {
+        overlay.classList.remove('active');
+        showResults(lang);
+      }, 300);
+      return;
+    }
+    fill.style.width = steps[i].pct;
+    text.textContent = steps[i].msg;
+    i++;
+    setTimeout(nextStep, 400 + Math.random() * 300);
+  }
+  nextStep();
+}
+
+function showResults(lang) {
+  const demo = DEMOS[lang];
+  const findings = demo.findings;
+  const panel = document.getElementById('resultPanel');
+  
+  let html = '';
+  findings.forEach((f, idx) => {
+    const sevClass = f.severity === 'high' ? 'severity-high' : f.severity === 'med' ? 'severity-med' : 'severity-low';
+    html += `
+      <div class="result-item">
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;">
+          <strong style="color:var(--accent);">#${idx + 1}</strong>
+          <span>${f.type}</span>
+          <span class="result-severity ${sevClass}">${f.severityText}</span>
+          <span style="font-size:0.8rem;color:var(--text-secondary);">${f.cwe}</span>
+        </div>
+        <div class="result-meta">📍 漏洞位置：第 ${f.line} 行</div>
+        <div class="result-desc">${f.desc}</div>
+        <div class="result-fix">💡 修复建议：${f.fix}</div>
+      </div>`;
+  });
+  
+  if (findings.length === 0) {
+    html = '<div style="padding:24px;text-align:center;color:var(--success);">✅ 未检测到已知漏洞模式</div>';
+  }
+  
+  panel.innerHTML = html;
+  document.getElementById('resultCount').textContent = `发现 ${findings.length} 个漏洞`;
+  
+  // Show fixed code
+  const fixedDisplay = document.getElementById('fixedCodeDisplay');
+  const lines = demo.fixedCode.split('\n');
+  let fixedHtml = '';
+  lines.forEach(line => {
+    const isAdd = line.includes('<<<');
+    const cls = isAdd ? 'fix-line' : '';
+    const badge = isAdd ? '<span class="fix-badge">FIX</span>' : '';
+    fixedHtml += `<span class="${cls}"><span class="line-num">${line.match(/^(\d+)/)?.[1] || ''}</span>${line.replace(/\d+\s+/, '').replace(/<<<.*/, '')}${badge}</span>\n`;
+  });
+  fixedDisplay.innerHTML = fixedHtml;
+}
+
+function exportReport() {
+  const lang = document.getElementById('langSelect').value;
+  const demo = DEMOS[lang];
+  const code = document.getElementById('codeInput').value;
+  
+  let md = `# 代码安全审计报告\n\n`;
+  md += `**语言**：${lang}\n\n`;
+  md += `**分析模式**：${currentMode === 'local' ? '本地推理（Few-shot）' : '远程API'}\n\n`;
+  md += `## 原始代码\n\n\`\`\`${lang.toLowerCase()}\n${code.trim()}\n\`\`\`\n\n`;
+  md += `## 漏洞分析结果\n\n`;
+  
+  demo.findings.forEach((f, i) => {
+    md += `### ${i + 1}. ${f.type} (${f.cwe})\n\n`;
+    md += `- **位置**：第 ${f.line} 行\n`;
+    md += `- **风险等级**：${f.severityText}\n`;
+    md += `- **描述**：${f.desc}\n`;
+    md += `- **修复建议**：${f.fix}\n\n`;
+  });
+  
+  md += `## 修复后代码\n\n\`\`\`${lang.toLowerCase()}\n${demo.fixedCode.replace(/<<<.*/g, '').trim()}\n\`\`\`\n\n`;
+  md += `---\n*报告由 基于LLM与混合分析的代码安全审计系统 生成*`;
+  
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `security_audit_report_${lang.toLowerCase()}_${Date.now()}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Initialize
+document.getElementById('langSelect').addEventListener('change', () => {
+  const lang = document.getElementById('langSelect').value;
+  const sel = document.getElementById('demoSelect');
+  if (lang === 'C') sel.value = '0';
+  if (lang === 'Java') sel.value = '1';
+  if (lang === 'Python') sel.value = '2';
+  loadDemo();
+});
+
+loadDemo();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,102 @@
+[
+  {
+    "id": "C_SAMPLE_031",
+    "language": "c",
+    "cwe": "CWE-120",
+    "vuln_type": "Buffer Overflow",
+    "description": "演示 classic_strcpy 漏洞模式",
+    "vuln_code": "// Variant 3\n#include <string.h>\nvoid copy_input(char *input) {\n    char buffer[64];\n    strcpy(buffer, input);  // VULN: no bounds check\n}\n",
+    "fixed_code": "// Variant 3 (Fixed)\n#include <string.h>\nvoid copy_input(char *input) {\n    char buffer[64];\n    if (input != NULL) {\n        strncpy(buffer, input, s",
+    "text": "Buffer Overflow CWE-120 演示 classic_strcpy 漏洞模式 // Variant 3\n#include <string.h>\nvoid copy_input(char *input) {\n    char buffer[64];\n    strcpy(buffer, input);  // VULN: no bounds check\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_032",
+    "language": "c",
+    "cwe": "CWE-121",
+    "vuln_type": "Stack Buffer Overflow",
+    "description": "演示 stack_overflow 漏洞模式",
+    "vuln_code": "// Variant 3\n#include <stdio.h>\nvoid process(int idx) {\n    int arr[10];\n    arr[idx] = 42;  // VULN: idx unchecked\n}\n",
+    "fixed_code": "// Variant 3 (Fixed)\n#include <stdio.h>\nvoid process(int idx) {\n    int arr[10];\n    if (idx >= 0 && idx < 10) {\n        arr[idx] = 42;\n    } else {\n ",
+    "text": "Stack Buffer Overflow CWE-121 演示 stack_overflow 漏洞模式 // Variant 3\n#include <stdio.h>\nvoid process(int idx) {\n    int arr[10];\n    arr[idx] = 42;  // VULN: idx unchecked\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_033",
+    "language": "c",
+    "cwe": "CWE-122",
+    "vuln_type": "Heap Buffer Overflow",
+    "description": "演示 heap_overflow 漏洞模式",
+    "vuln_code": "// Variant 3\n#include <stdlib.h>\n#include <string.h>\nvoid heap_copy(char *src) {\n    char *dst = malloc(10);\n    strcpy(dst, src);  // VULN: dst may b",
+    "fixed_code": "// Variant 3 (Fixed)\n#include <stdlib.h>\n#include <string.h>\nvoid heap_copy(char *src) {\n    size_t len = strlen(src) + 1;\n    char *dst = malloc(len)",
+    "text": "Heap Buffer Overflow CWE-122 演示 heap_overflow 漏洞模式 // Variant 3\n#include <stdlib.h>\n#include <string.h>\nvoid heap_copy(char *src) {\n    char *dst = malloc(10);\n    strcpy(dst, src);  // VULN: dst may be too small\n    free(dst);\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_034",
+    "language": "c",
+    "cwe": "CWE-190",
+    "vuln_type": "Integer Overflow",
+    "description": "演示 int_overflow 漏洞模式",
+    "vuln_code": "// Variant 3\n#include <stdio.h>\nint alloc_size(int n) {\n    return n * sizeof(int);  // VULN: integer overflow possible\n}\n",
+    "fixed_code": "// Variant 3 (Fixed)\n#include <stdio.h>\n#include <limits.h>\nint alloc_size(int n) {\n    if (n > 0 && n > INT_MAX / sizeof(int)) {\n        fprintf(stde",
+    "text": "Integer Overflow CWE-190 演示 int_overflow 漏洞模式 // Variant 3\n#include <stdio.h>\nint alloc_size(int n) {\n    return n * sizeof(int);  // VULN: integer overflow possible\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_035",
+    "language": "c",
+    "cwe": "CWE-191",
+    "vuln_type": "Integer Underflow",
+    "description": "演示 int_underflow 漏洞模式",
+    "vuln_code": "// Variant 3\n#include <stdio.h>\nunsigned int subtract(unsigned int a, unsigned int b) {\n    return a - b;  // VULN: underflow if b > a\n}\n",
+    "fixed_code": "// Variant 3 (Fixed)\n#include <stdio.h>\nunsigned int subtract(unsigned int a, unsigned int b) {\n    if (b > a) {\n        fprintf(stderr, \"Underflow de",
+    "text": "Integer Underflow CWE-191 演示 int_underflow 漏洞模式 // Variant 3\n#include <stdio.h>\nunsigned int subtract(unsigned int a, unsigned int b) {\n    return a - b;  // VULN: underflow if b > a\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_036",
+    "language": "c",
+    "cwe": "CWE-415",
+    "vuln_type": "Double Free",
+    "description": "演示 double_free 漏洞模式",
+    "vuln_code": "// Variant 3\n#include <stdlib.h>\nvoid cleanup(char *p) {\n    free(p);\n    free(p);  // VULN: double free\n}\n",
+    "fixed_code": "// Variant 3 (Fixed)\n#include <stdlib.h>\nvoid cleanup(char *p) {\n    if (p != NULL) {\n        free(p);\n        p = NULL;\n    }\n}\n",
+    "text": "Double Free CWE-415 演示 double_free 漏洞模式 // Variant 3\n#include <stdlib.h>\nvoid cleanup(char *p) {\n    free(p);\n    free(p);  // VULN: double free\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_037",
+    "language": "c",
+    "cwe": "CWE-416",
+    "vuln_type": "Use After Free",
+    "description": "演示 use_after_free 漏洞模式",
+    "vuln_code": "// Variant 3\n#include <stdlib.h>\n#include <stdio.h>\nvoid uaf_example() {\n    char *msg = malloc(20);\n    free(msg);\n    printf(\"%s\", msg);  // VULN: u",
+    "fixed_code": "// Variant 3 (Fixed)\n#include <stdlib.h>\n#include <stdio.h>\nvoid uaf_example() {\n    char *msg = malloc(20);\n    if (msg != NULL) {\n        snprintf(m",
+    "text": "Use After Free CWE-416 演示 use_after_free 漏洞模式 // Variant 3\n#include <stdlib.h>\n#include <stdio.h>\nvoid uaf_example() {\n    char *msg = malloc(20);\n    free(msg);\n    printf(\"%s\", msg);  // VULN: use after free\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_038",
+    "language": "c",
+    "cwe": "CWE-476",
+    "vuln_type": "NULL Pointer Dereference",
+    "description": "演示 null_deref 漏洞模式",
+    "vuln_code": "// Variant 3\n#include <stdio.h>\nvoid print_len(char *s) {\n    printf(\"%d\", strlen(s));  // VULN: s may be NULL\n}\n",
+    "fixed_code": "// Variant 3 (Fixed)\n#include <stdio.h>\n#include <string.h>\nvoid print_len(char *s) {\n    if (s != NULL) {\n        printf(\"%zu\", strlen(s));\n    } els",
+    "text": "NULL Pointer Dereference CWE-476 演示 null_deref 漏洞模式 // Variant 3\n#include <stdio.h>\nvoid print_len(char *s) {\n    printf(\"%d\", strlen(s));  // VULN: s may be NULL\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_039",
+    "language": "c",
+    "cwe": "CWE-457",
+    "vuln_type": "Use of Uninitialized Variable",
+    "description": "演示 uninit_var 漏洞模式",
+    "vuln_code": "// Variant 3\n#include <stdio.h>\nint sum_array(int *arr, int n) {\n    int sum;\n    for (int i = 0; i < n; i++) {\n        sum += arr[i];  // VULN: sum u",
+    "fixed_code": "// Variant 3 (Fixed)\n#include <stdio.h>\nint sum_array(int *arr, int n) {\n    int sum = 0;\n    if (arr == NULL || n <= 0) return 0;\n    for (int i = 0;",
+    "text": "Use of Uninitialized Variable CWE-457 演示 uninit_var 漏洞模式 // Variant 3\n#include <stdio.h>\nint sum_array(int *arr, int n) {\n    int sum;\n    for (int i = 0; i < n; i++) {\n        sum += arr[i];  // VULN: sum uninitialized\n    }\n    return sum;\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_040",
+    "language": "c",
+    "cwe": "CWE-134",
+    "vuln_type": "Uncontrolled Format String",
+    "description": "演示 format_string 漏洞模式",
+    "vuln_code": "// Variant 3\n#include <stdio.h>\nvoid log_msg(char *msg) {\n    printf(msg);  // VULN: format string injection\n}\n",
+    "fixed_code": "// Variant 3 (Fixed)\n#include <stdio.h>\nvoid log_msg(char *msg) {\n    if (msg != NULL) {\n        printf(\"%s\", msg);\n    }\n}\n",
+    "text": "Uncontrolled Format String CWE-134 演示 format_string 漏洞模式 // Variant 3\n#include <stdio.h>\nvoid log_msg(char *msg) {\n    printf(msg);  // VULN: format string injection\n}\n"
+  }
+]

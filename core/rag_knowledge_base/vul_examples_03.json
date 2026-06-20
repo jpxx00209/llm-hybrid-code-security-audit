@@ -1,0 +1,102 @@
+[
+  {
+    "id": "C_SAMPLE_021",
+    "language": "c",
+    "cwe": "CWE-415",
+    "vuln_type": "Double Free",
+    "description": "演示 double_free 漏洞模式",
+    "vuln_code": "// Variant 2\n#include <stdlib.h>\nvoid cleanup(char *p) {\n    free(p);\n    free(p);  // VULN: double free\n}\n",
+    "fixed_code": "// Variant 2 (Fixed)\n#include <stdlib.h>\nvoid cleanup(char *p) {\n    if (p != NULL) {\n        free(p);\n        p = NULL;\n    }\n}\n",
+    "text": "Double Free CWE-415 演示 double_free 漏洞模式 // Variant 2\n#include <stdlib.h>\nvoid cleanup(char *p) {\n    free(p);\n    free(p);  // VULN: double free\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_022",
+    "language": "c",
+    "cwe": "CWE-416",
+    "vuln_type": "Use After Free",
+    "description": "演示 use_after_free 漏洞模式",
+    "vuln_code": "// Variant 2\n#include <stdlib.h>\n#include <stdio.h>\nvoid uaf_example() {\n    char *msg = malloc(20);\n    free(msg);\n    printf(\"%s\", msg);  // VULN: u",
+    "fixed_code": "// Variant 2 (Fixed)\n#include <stdlib.h>\n#include <stdio.h>\nvoid uaf_example() {\n    char *msg = malloc(20);\n    if (msg != NULL) {\n        snprintf(m",
+    "text": "Use After Free CWE-416 演示 use_after_free 漏洞模式 // Variant 2\n#include <stdlib.h>\n#include <stdio.h>\nvoid uaf_example() {\n    char *msg = malloc(20);\n    free(msg);\n    printf(\"%s\", msg);  // VULN: use after free\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_023",
+    "language": "c",
+    "cwe": "CWE-476",
+    "vuln_type": "NULL Pointer Dereference",
+    "description": "演示 null_deref 漏洞模式",
+    "vuln_code": "// Variant 2\n#include <stdio.h>\nvoid print_len(char *s) {\n    printf(\"%d\", strlen(s));  // VULN: s may be NULL\n}\n",
+    "fixed_code": "// Variant 2 (Fixed)\n#include <stdio.h>\n#include <string.h>\nvoid print_len(char *s) {\n    if (s != NULL) {\n        printf(\"%zu\", strlen(s));\n    } els",
+    "text": "NULL Pointer Dereference CWE-476 演示 null_deref 漏洞模式 // Variant 2\n#include <stdio.h>\nvoid print_len(char *s) {\n    printf(\"%d\", strlen(s));  // VULN: s may be NULL\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_024",
+    "language": "c",
+    "cwe": "CWE-457",
+    "vuln_type": "Use of Uninitialized Variable",
+    "description": "演示 uninit_var 漏洞模式",
+    "vuln_code": "// Variant 2\n#include <stdio.h>\nint sum_array(int *arr, int n) {\n    int sum;\n    for (int i = 0; i < n; i++) {\n        sum += arr[i];  // VULN: sum u",
+    "fixed_code": "// Variant 2 (Fixed)\n#include <stdio.h>\nint sum_array(int *arr, int n) {\n    int sum = 0;\n    if (arr == NULL || n <= 0) return 0;\n    for (int i = 0;",
+    "text": "Use of Uninitialized Variable CWE-457 演示 uninit_var 漏洞模式 // Variant 2\n#include <stdio.h>\nint sum_array(int *arr, int n) {\n    int sum;\n    for (int i = 0; i < n; i++) {\n        sum += arr[i];  // VULN: sum uninitialized\n    }\n    return sum;\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_025",
+    "language": "c",
+    "cwe": "CWE-134",
+    "vuln_type": "Uncontrolled Format String",
+    "description": "演示 format_string 漏洞模式",
+    "vuln_code": "// Variant 2\n#include <stdio.h>\nvoid log_msg(char *msg) {\n    printf(msg);  // VULN: format string injection\n}\n",
+    "fixed_code": "// Variant 2 (Fixed)\n#include <stdio.h>\nvoid log_msg(char *msg) {\n    if (msg != NULL) {\n        printf(\"%s\", msg);\n    }\n}\n",
+    "text": "Uncontrolled Format String CWE-134 演示 format_string 漏洞模式 // Variant 2\n#include <stdio.h>\nvoid log_msg(char *msg) {\n    printf(msg);  // VULN: format string injection\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_026",
+    "language": "c",
+    "cwe": "CWE-78",
+    "vuln_type": "OS Command Injection",
+    "description": "演示 cmd_injection 漏洞模式",
+    "vuln_code": "// Variant 2\n#include <stdlib.h>\nvoid run_cmd(char *user_input) {\n    system(user_input);  // VULN: command injection\n}\n",
+    "fixed_code": "// Variant 2 (Fixed)\n#include <stdlib.h>\n#include <string.h>\nvoid run_cmd(char *user_input) {\n    if (user_input == NULL) return;\n    if (strpbrk(user",
+    "text": "OS Command Injection CWE-78 演示 cmd_injection 漏洞模式 // Variant 2\n#include <stdlib.h>\nvoid run_cmd(char *user_input) {\n    system(user_input);  // VULN: command injection\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_027",
+    "language": "c",
+    "cwe": "CWE-22",
+    "vuln_type": "Path Traversal",
+    "description": "演示 path_traversal 漏洞模式",
+    "vuln_code": "// Variant 2\n#include <stdio.h>\nFILE* open_file(char *filename) {\n    return fopen(filename, \"r\");  // VULN: path traversal\n}\n",
+    "fixed_code": "// Variant 2 (Fixed)\n#include <stdio.h>\n#include <string.h>\nFILE* open_file(char *filename) {\n    if (filename == NULL || strstr(filename, \"..\") != NU",
+    "text": "Path Traversal CWE-22 演示 path_traversal 漏洞模式 // Variant 2\n#include <stdio.h>\nFILE* open_file(char *filename) {\n    return fopen(filename, \"r\");  // VULN: path traversal\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_028",
+    "language": "c",
+    "cwe": "CWE-195",
+    "vuln_type": "Signed to Unsigned Conversion Error",
+    "description": "演示 sign_conv 漏洞模式",
+    "vuln_code": "// Variant 2\n#include <stdio.h>\nvoid write_data(int len) {\n    char buf[100];\n    if (len < 100)\n        memcpy(buf, \"data\", len);  // VULN: len is si",
+    "fixed_code": "// Variant 2 (Fixed)\n#include <stdio.h>\n#include <string.h>\nvoid write_data(int len) {\n    char buf[100];\n    if (len > 0 && len < 100)\n        memcpy",
+    "text": "Signed to Unsigned Conversion Error CWE-195 演示 sign_conv 漏洞模式 // Variant 2\n#include <stdio.h>\nvoid write_data(int len) {\n    char buf[100];\n    if (len < 100)\n        memcpy(buf, \"data\", len);  // VULN: len is signed, negative bypasses check\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_029",
+    "language": "c",
+    "cwe": "CWE-787",
+    "vuln_type": "Out-of-bounds Write",
+    "description": "演示 oob_write 漏洞模式",
+    "vuln_code": "// Variant 2\n#include <stdio.h>\nvoid set_flag(int idx) {\n    int flags[5] = {0};\n    flags[idx] = 1;  // VULN: idx unchecked\n}\n",
+    "fixed_code": "// Variant 2 (Fixed)\n#include <stdio.h>\nvoid set_flag(int idx) {\n    int flags[5] = {0};\n    if (idx >= 0 && idx < 5) {\n        flags[idx] = 1;\n    }\n",
+    "text": "Out-of-bounds Write CWE-787 演示 oob_write 漏洞模式 // Variant 2\n#include <stdio.h>\nvoid set_flag(int idx) {\n    int flags[5] = {0};\n    flags[idx] = 1;  // VULN: idx unchecked\n}\n"
+  },
+  {
+    "id": "C_SAMPLE_030",
+    "language": "c",
+    "cwe": "CWE-119",
+    "vuln_type": "Improper Restriction of Operations within Buffer",
+    "description": "演示 buffer_ops 漏洞模式",
+    "vuln_code": "// Variant 2\n#include <string.h>\nvoid concat(char *a, char *b) {\n    char buf[32];\n    strcat(buf, a);  // VULN: potential overflow\n    strcat(buf, b)",
+    "fixed_code": "// Variant 2 (Fixed)\n#include <string.h>\nvoid concat(char *a, char *b) {\n    char buf[32];\n    buf[0] = '\\0';\n    if (a != NULL)\n        strncat(buf, ",
+    "text": "Improper Restriction of Operations within Buffer CWE-119 演示 buffer_ops 漏洞模式 // Variant 2\n#include <string.h>\nvoid concat(char *a, char *b) {\n    char buf[32];\n    strcat(buf, a);  // VULN: potential overflow\n    strcat(buf, b);\n}\n"
+  }
+]
